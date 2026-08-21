@@ -17,7 +17,7 @@ padded replies burn tokens on every message. This project cuts that waste
    at the TOP of your system prompt.
 2. Optional context filter - see [[DeepSeek-Harness-Adapter]].
 3. Optional CLI: add `skills/token-savings/bin` to PATH, then `toks selftest`
-   (179 tests, must pass).
+   (197 tests, must pass).
 
 ## The four promises
 

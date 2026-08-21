@@ -16,7 +16,7 @@ TOKS_UPSTREAM=https://api.deepseek.com/v1 python3 dist/deepseek-harness/toks_fil
 
 # 3. Optional portable CLI on PATH:
 export PATH="$PWD/skills/token-savings/bin:$PATH"
-toks selftest        # 179 tests, all must pass
+toks selftest        # 197 tests, all must pass
 ```
 
 ## Native installs
@@ -34,7 +34,7 @@ toks selftest        # 179 tests, all must pass
 |---|---|
 | Any harness w/ model endpoint | universal path - always works |
 | DeepSeek-style harness | dedicated adapter (filter + prompt bundle) |
-| WorkBuddy | native - 179/179 tests - gated releases |
+| WorkBuddy | native - 197/197 tests - gated releases |
 | Hermes Agent | verified (installs, registers, enabled) |
 | Codex / Claude Code / OpenCode-style | behavioral rules port; needs skill conversion |
 | Ollama / LM Studio (model servers) | no agent loop - condensed prompt applies |

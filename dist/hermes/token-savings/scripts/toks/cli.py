@@ -24,7 +24,7 @@ import json
 import os
 import sys
 
-from toks import dedup, compress, measure, checkpoint, astrip, safemode, hygiene, protect, mdnorm, toolaudit, output, cost, surface, check, audit, gate, input_meter  # noqa: E402
+from toks import dedup, compress, measure, checkpoint, astrip, safemode, hygiene, protect, mdnorm, toolaudit, output, cost, surface, check, audit, gate, input_meter, autopilot, doctor  # noqa: E402
 from toks.demo import run_demo
 
 
@@ -71,6 +71,7 @@ def build_parser():
 
     cp = sub.add_parser("checkpoint")
     cp.add_argument("--emit", action="store_true")
+    cp.add_argument("--auto", action="store_true", help="auto-extract open work from --text (v10)")
     cp.add_argument("--text", default="")
     cp.add_argument("--active-task", default="")
     cp.add_argument("--decisions", default="")
@@ -134,6 +135,17 @@ def build_parser():
     im = sub.add_parser("input-meter")
     im.add_argument("--text", default="")
     im.add_argument("--file", default="")
+
+    og = sub.add_parser("output-gate")
+    og.add_argument("--text", required=True)
+    og.add_argument("--task", default="chat_reply")
+
+    ap = sub.add_parser("autopilot")
+    ap.add_argument("--text", default="")
+    ap.add_argument("--file", default="")
+    ap.add_argument("--task", default="chat_reply")
+
+    sub.add_parser("doctor")
 
     sub.add_parser("selftest")
     sub.add_parser("demo")
@@ -208,6 +220,8 @@ def handle_checkpoint(args):
             "Lessons to carry": args.lessons.split("|") if args.lessons else [],
         }
         print(checkpoint.emit_checkpoint(state))
+    elif args.auto:
+        print(checkpoint.emit_checkpoint(checkpoint.auto_state(args.text)))
     else:
         print(checkpoint.parse_checkpoint(args.text))
 
@@ -291,6 +305,22 @@ def handle_input_gate(args):
                             min_compress=args.min_compress))
 
 
+def handle_output_gate(args):
+    print(output.gate_reply(args.text, task_type=args.task))
+
+
+def handle_autopilot(args):
+    text = args.text
+    if not text and args.file:
+        with open(_resolve(args.file), "r", encoding="utf-8") as fh:
+            text = fh.read()
+    print(autopilot.format_directives(autopilot.autopilot(text, task_type=args.task)))
+
+
+def handle_doctor(args):
+    print(doctor.format_report(doctor.run_checks()))
+
+
 def handle_input_meter(args):
     text = args.text
     if not text and args.file:
@@ -350,6 +380,9 @@ HANDLERS = {
     "audit-session": handle_audit_session,
     "input-gate": handle_input_gate,
     "input-meter": handle_input_meter,
+    "output-gate": handle_output_gate,
+    "autopilot": handle_autopilot,
+    "doctor": handle_doctor,
     "selftest": handle_selftest,
     "demo": handle_demo,
 }

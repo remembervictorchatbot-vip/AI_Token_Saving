@@ -281,6 +281,29 @@ fact must survive; on a miss, keep the original for that region.
 
 ---
 
+## PART I — Autopilot & self-enforcement (v10)
+
+The loop is now self-checking instead of hope-based:
+
+**I-5 — Output gate before emit.** Before finalizing any reply, run
+`toks output-gate --text "$REPLY" --task <type>`: O-2 ceiling, O-1/O-6 JSON +
+fences, O-5 filler. Fix what it flags, then emit.
+
+**I-6 — Session autopilot.** Every ~10 turns (or when a thread feels long),
+run `toks autopilot --file transcript.txt`: it meters input cost, audits rule
+violations, and gates the last reply, then prints NEXT-TURN DIRECTIVES — read
+them FIRST and apply.
+
+**I-7 — Environment doctor.** Run `toks doctor` after installing anywhere:
+it checks python, toolkit, input-filter wiring, and PATH, and prints the exact
+one-liner to turn each WARN/MISS into OK.
+
+**I-8 — Auto-checkpoint.** `toks checkpoint --auto --text "$LAST_MESSAGES"`
+extracts open work (active task, decisions, next steps) heuristically — USE-9
+continuity becomes one call, no manual fields.
+
+---
+
 ## PART G — Step-cost model & input preflight (v8)
 
 Every step re-sends the WHOLE context from prefix cache (USE-0). Spend therefore
@@ -313,7 +336,7 @@ hardcoded paths — works under WorkBuddy, Hermes Agent, or any harness with
 Python 3.9+. Run from anywhere:
 
 ```bash
-toks selftest        # FULL suite (currently 179 tests) — must stay GREEN
+toks selftest        # FULL suite (currently 197 tests) — must stay GREEN
 toks demo            # quick self-tests
 toks measure --text "$OUTPUT"   # est. tokens (chars/4) — diagnostic
 toks dedup --text "$(cat file.txt)"        # ref or [FIRST TIME]
@@ -339,6 +362,10 @@ toks check-syntax --text "$CODE" --lang py    # O-6 gate: VALID / INVALID before
 toks audit-session --file transcript.txt      # self-audit: re-reads, bloat, loops, bad JSON
 toks input-gate --text "$(cat tool_output.txt)"   # I-1: context-ready content (dedup->compress->protect)
 toks input-meter --file transcript.txt         # session input cost + recoverable repeat waste
+toks output-gate --text "$REPLY" --task analysis   # I-5: O-1..O-6 before emit
+toks autopilot --file transcript.txt           # I-6: meter + audit + gate -> next-turn directives
+toks doctor                                    # I-7: is auto-saving wired here?
+toks checkpoint --auto --text "$LAST_MESSAGES" # I-8: auto-extract open work (USE-9)
 toks --help  # resume helper is a library: `from toks import resume; resume.write_resume(state)` / `resume.read_resume()`
 ```
 

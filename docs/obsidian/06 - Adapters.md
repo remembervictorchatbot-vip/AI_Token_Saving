@@ -9,7 +9,7 @@ How the discipline ships to different harnesses.
 ## Universal path (any harness with a system prompt + model endpoint)
 
 1. Paste [dist/system-prompt/token-savings-prompt.md](../../dist/system-prompt/token-savings-prompt.md)
-   at the TOP of the system prompt (16 standing rules: input discipline,
+   at the TOP of the system prompt (18 standing rules: input discipline,
    output discipline, continuity & hygiene).
 2. Optional context filter: run [dist/deepseek-harness/toks_filter.py](../../dist/deepseek-harness/toks_filter.py)
    as an OpenAI-compatible proxy that compresses request bodies before the
@@ -45,7 +45,7 @@ sync via 'python build_hermes_bundle.py --check'.
 
 ## WorkBuddy
 
-'cp -R skills/* ~/.workbuddy/skills/' - native, 179/179 tests, gated releases.
+'cp -R skills/* ~/.workbuddy/skills/' - native, 197/197 tests, gated releases.
 
 ## Others (Claude Code / Codex / OpenCode-style)
 

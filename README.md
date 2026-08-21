@@ -42,7 +42,7 @@ TOKS_UPSTREAM=https://api.deepseek.com/v1 python3 dist/deepseek-harness/toks_fil
 
 # 3. Optional — portable CLI on PATH (verify, then use directly):
 export PATH="$PWD/skills/token-savings/bin:$PATH"
-toks selftest        # 179 tests, all must pass
+toks selftest        # 197 tests, all must pass
 ```
 
 **Native one-command installs** (best on these platforms):
@@ -87,6 +87,9 @@ limits. The fix is a discipline, not a single trick:
 | Automatic input gate (v9) | `toks input-gate` | context-ready content: dedup → compress → protect → fidelity marker (71.5%) |
 | Session input meter (v9) | `toks input-meter` | actual input cost + recoverable repeat waste |
 | Fidelity facts (v9) | `toks quality-gate --facts` | I-4: key facts survive lossy steps |
+| Output gate (v10) | `toks output-gate` | I-5: O-1..O-6 self-check before every reply |
+| Session autopilot (v10) | `toks autopilot` | I-6: meter + audit + gate → next-turn directives |
+| Environment doctor (v10) | `toks doctor` | I-7: is auto-saving actually wired here? |
 
 **Before / after — output discipline (O-1):**
 
@@ -152,7 +155,7 @@ frontier model complies better than a small local one. No inflated claims._
 |---|---|---|
 | **Any harness w/ a model endpoint** (universal) | behavioral rules + context filter — always works | system-prompt bundle + `toks_filter.py` (see [Quick start](#quick-start--works-with-any-model-any-harness)) |
 | **DeepSeek-style harness** (DeepSeek API, LM Studio, Qwen Code, OpenCode) | dedicated adapter — context filter + prompt bundle | see [dist/deepseek-harness/README.md](dist/deepseek-harness/README.md) |
-| **WorkBuddy** | native · 179/179 tests · gated releases | `cp -R skills/* ~/.workbuddy/skills/` |
+| **WorkBuddy** | native · 197/197 tests · gated releases | `cp -R skills/* ~/.workbuddy/skills/` |
 | **Hermes Agent** | verified (installs, registers, enabled) | `cp -R dist/hermes/token-savings ~/.hermes/skills/` then `hermes skills list` |
 | **Codex / Claude Code / OpenCode-style** | behavioral rules port; needs skill conversion | copy `skills/token-savings`, Python 3.9+ on PATH |
 | Ollama / LM Studio (model servers) | no agent loop — condensed prompt applies | same system-prompt bundle |

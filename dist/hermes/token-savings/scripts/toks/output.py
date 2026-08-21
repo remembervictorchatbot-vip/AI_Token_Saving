@@ -97,3 +97,45 @@ class AnswerCache:
 
     def stats(self) -> dict:
         return {"entries": len(self._store)}
+
+
+# --- O-1..O-6 reply gate (v10): self-enforcing output check before emit ---
+
+FLUFF_PATTERNS = (
+    "let me know if you have any other",
+    "let me know if you need",
+    "i hope this helps",
+    "hope this helps",
+    "feel free to reach out",
+    "best regards",
+    "thanks for asking",
+)
+
+
+def gate_reply(text: str, task_type: str = "chat_reply") -> dict:
+    """Run O-1..O-6 checks on a reply BEFORE finalizing it.
+
+    Returns {'pass': bool, 'issues': [...], 'lines': n, 'ceiling': N}.
+    - O-2: line count vs the task-type ceiling
+    - O-5: trailing filler (skipped for chat replies, where politeness is normal)
+    - O-1/O-6: JSON-looking output must parse; code fences must be balanced
+    """
+    issues = []
+    lines = text.splitlines()
+    n = len(lines)
+    ceiling = budget(task_type)
+    if ceiling and n > ceiling:
+        issues.append("O-2: {} lines exceeds ceiling {} for {}".format(n, ceiling, task_type))
+    if task_type != "chat_reply":
+        low = text.strip().lower()
+        for pat in FLUFF_PATTERNS:
+            if pat in low:
+                issues.append("O-5: trailing filler matched: {!r}".format(pat))
+                break
+    if text.lstrip()[:1] in "[{":
+        if not valid_json(text):
+            issues.append("O-1/O-6: looks like JSON but does not parse")
+    fences = text.count("```")
+    if fences % 2:
+        issues.append("O-6: unbalanced code fences")
+    return {"pass": len(issues) == 0, "issues": issues, "lines": n, "ceiling": ceiling}
