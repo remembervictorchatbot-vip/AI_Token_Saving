@@ -1,0 +1,13 @@
+# Python caches
+__pycache__/
+*.py[cod]
+.ruff_cache/
+.mypy_cache/
+
+# Runtime caches produced by the toolkit
+toks/.cache/
+**/.cache/
+
+# OS / editor
+.DS_Store
+*.swp

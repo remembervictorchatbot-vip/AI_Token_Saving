@@ -1,0 +1,14 @@
+#!/bin/sh
+# Portable toks launcher (v7) - works from any cwd, any install location.
+# Resolution order: $TOKS_SKILL_DIR -> $HERMES_SKILL_DIR -> this script's dir.
+if [ -n "$TOKS_SKILL_DIR" ]; then
+  DIR="$TOKS_SKILL_DIR"
+elif [ -n "$HERMES_SKILL_DIR" ]; then
+  DIR="$HERMES_SKILL_DIR"
+else
+  SELF="$(readlink -f "$0" 2>/dev/null || echo "$0")"
+  DIR="$(cd "$(dirname "$SELF")/.." 2>/dev/null && pwd)"
+fi
+
+cd "$DIR/scripts" 2>/dev/null || { echo "toks: cannot locate skill scripts dir (set TOKS_SKILL_DIR)" >&2; exit 1; }
+exec python3 -m toks.cli "$@"

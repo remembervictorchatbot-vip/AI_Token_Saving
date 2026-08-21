@@ -1,0 +1,37 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Full test suite (must stay GREEN)
+        working-directory: skills/token-savings/scripts
+        run: python -m toks.cli selftest
+
+      - name: Demo smoke
+        working-directory: skills/token-savings/scripts
+        run: python -m toks.cli demo
+
+      - name: Portable launcher smoke (bin/toks from an unrelated cwd)
+        run: |
+          cd /tmp
+          bash ${{ github.workspace }}/skills/token-savings/bin/toks --help | grep -q usage
+
+      - name: Benchmark smoke (tool-level report)
+        working-directory: bench
+        run: python run_bench.py > /dev/null
