@@ -13,13 +13,18 @@
     python -m toks.cli quality-gate --before "..." --after "..."
     python -m toks.cli protect --text "..." --mode code|json|text
     python -m toks.cli checkpoint --emit --active-task "..." --decisions "d1|d2"
+    python -m toks.cli dedup --diff --text "..."     # delta re-read (v8)
+    python -m toks.cli cost-estimate --steps 5 --ctx-chars 120000   # G1 preflight
+    python -m toks.cli surface --path file.py        # read-me-first (v8)
+    python -m toks.cli check-syntax --text "..." --lang py   # O-6 gate
+    python -m toks.cli audit-session --file transcript.txt   # self-audit (v8)
 """
 import argparse
 import json
 import os
 import sys
 
-from toks import dedup, compress, measure, checkpoint, astrip, safemode, hygiene, protect, mdnorm, toolaudit, output  # noqa: E402
+from toks import dedup, compress, measure, checkpoint, astrip, safemode, hygiene, protect, mdnorm, toolaudit, output, cost, surface, check, audit  # noqa: E402
 from toks.demo import run_demo
 
 
@@ -31,6 +36,7 @@ def build_parser():
     d = sub.add_parser("dedup")
     d.add_argument("--text", required=True)
     d.add_argument("--reset", action="store_true")
+    d.add_argument("--diff", action="store_true", help="delta re-read: ref on exact repeat, changed-line hunks on change")
 
     cj = sub.add_parser("compress-json")
     cj.add_argument("--text", required=True)
@@ -96,6 +102,28 @@ def build_parser():
     ot.add_argument("--header", required=True)
     ot.add_argument("--rows", default="")
 
+    ce = sub.add_parser("cost-estimate")
+    ce.add_argument("--steps", type=int, default=5)
+    ce.add_argument("--ctx-chars", type=int, default=120000)
+    ce.add_argument("--out-chars", type=int, default=4000)
+    ce.add_argument("--price-per-mtok", type=float,
+                    default=float(os.environ.get("TOKS_PRICE_PER_MT", "1.0")))
+    ce.add_argument("--peak", action="store_true", default=True)
+    ce.add_argument("--idle", action="store_true")
+
+    sf = sub.add_parser("surface")
+    sf.add_argument("--text", default="")
+    sf.add_argument("--path", default="")
+    sf.add_argument("--lang", default="auto", choices=["auto", "py", "json", "md", "conf"])
+
+    cs = sub.add_parser("check-syntax")
+    cs.add_argument("--text", required=True)
+    cs.add_argument("--lang", default="py", choices=["py", "json", "md"])
+
+    au = sub.add_parser("audit-session")
+    au.add_argument("--text", default="")
+    au.add_argument("--file", default="")
+
     sub.add_parser("selftest")
     sub.add_parser("demo")
     return p
@@ -103,11 +131,23 @@ def build_parser():
 
 # --- Handlers (one per subcommand) ---
 
+def _resolve(path: str) -> str:
+    """Resolve a relative --path/--manifest against the caller's cwd (bin/toks
+    changes directory; TOKS_CALLER_CWD preserves where the user ran it)."""
+    base = os.environ.get("TOKS_CALLER_CWD")
+    if base and path and not os.path.isabs(path):
+        return os.path.join(base, path)
+    return path
+
+
 def handle_dedup(args):
     dc = dedup.DedupCache()
     if args.reset:
         dc.reset()
         print("reset")
+    elif args.diff:
+        r = dc.diff_ref(args.text)
+        print(r if r else "[FIRST TIME - keep full content]")
     else:
         r = dc.ref(args.text)
         print(r if r else "[FIRST TIME - keep full content]")
@@ -184,7 +224,7 @@ def handle_mdnorm(args):
 def handle_toolaudit(args):
     raw = args.text
     if args.manifest:
-        with open(args.manifest, "r", encoding="utf-8") as fh:
+        with open(_resolve(args.manifest), "r", encoding="utf-8") as fh:
             raw = fh.read()
     if not raw:
         raw = toolaudit.sample_manifest()
@@ -208,6 +248,37 @@ def handle_output_table(args):
     header = args.header.split("|")
     rows = [r.split("|") for r in args.rows.split(";")] if args.rows else []
     print(output.table_lines(header, rows))
+
+
+def handle_cost_estimate(args):
+    peak = not args.idle
+    est = cost.estimate(args.steps, args.ctx_chars, args.out_chars,
+                        price_per_mtok=args.price_per_mtok, peak=peak)
+    print(cost.format_report(est))
+
+
+def handle_surface(args):
+    text = args.text
+    if not text and args.path:
+        with open(_resolve(args.path), "r", encoding="utf-8") as fh:
+            text = fh.read()
+    print(surface.surface(text, lang=args.lang, path=args.path))
+
+
+def handle_check_syntax(args):
+    ok, msg = check.validate(args.text, lang=args.lang)
+    print(msg)
+
+
+def handle_audit_session(args):
+    text = args.text
+    if not text and args.file:
+        with open(args.file, "r", encoding="utf-8") as fh:
+            text = fh.read()
+    findings = audit.audit_session(text)
+    print(audit.format_report(findings))
+    if findings:
+        sys.exit(1)
 
 
 def handle_selftest(args):
@@ -244,6 +315,10 @@ HANDLERS = {
     "output-budget": handle_output_budget,
     "output-json": handle_output_json,
     "output-table": handle_output_table,
+    "cost-estimate": handle_cost_estimate,
+    "surface": handle_surface,
+    "check-syntax": handle_check_syntax,
+    "audit-session": handle_audit_session,
     "selftest": handle_selftest,
     "demo": handle_demo,
 }

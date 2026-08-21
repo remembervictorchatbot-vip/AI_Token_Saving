@@ -10,5 +10,8 @@ else
   DIR="$(cd "$(dirname "$SELF")/.." 2>/dev/null && pwd)"
 fi
 
+# Preserve the caller's cwd so relative --path/--manifest args resolve
+# against where the user ran toks, not against the skill dir (v8 fix).
+export TOKS_CALLER_CWD="$(pwd)"
 cd "$DIR/scripts" 2>/dev/null || { echo "toks: cannot locate skill scripts dir (set TOKS_SKILL_DIR)" >&2; exit 1; }
 exec python3 -m toks.cli "$@"

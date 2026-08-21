@@ -19,7 +19,7 @@ agents.
 A **quality-preserving token-saving discipline** for AI agents: a pure-stdlib
 Python 3.9+ toolkit (toks CLI + crl code-review engine) plus behavioral rules
 that work on any model and any harness. **Zero dependencies, zero telemetry,
-zero network calls.** Measured 49.6% aggregate tool-level input savings on
+zero network calls.** Measured 50.0% aggregate tool-level input savings on
 representative samples (see [[04 - Benchmark]]).
 
 ## Vault map

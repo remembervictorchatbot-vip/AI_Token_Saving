@@ -6,13 +6,14 @@ representative samples. NOT an end-to-end agent session.
 | Surface | Sample | Before | After | Saved |
 |---|---|---|---|---|
 | dedup (file-hash) | config re-read (2nd read) | 1,059 | 18 | **98.3%** |
+| dedup --diff (v8) | config re-read after edit | 1,067 | 241 | **77.4%** |
 | summarize_grep | 150 grep hits | 4,449 | 334 | **92.5%** |
 | astrip | ~150-line Python module | 6,816 | 1,420 | **79.2%** |
 | trim_bash | build log w/ ANSI + repeats | 3,519 | 877 | **75.1%** |
 | O-1 data-only | chat reply -> table | 345 | 98 | **71.6%** |
 | compress_json | 500-item API payload (nulls+debug) | 37,293 | 21,243 | **43.0%** |
 | mdnorm | 120-paragraph docs page | 14,118 | 10,109 | **28.4%** |
-| **Aggregate** | | **67,599** | **34,099** | **49.6%** |
+| **Aggregate** | | **68,666** | **34,340** | **50.0%** |
 
 ## Reproduce
 

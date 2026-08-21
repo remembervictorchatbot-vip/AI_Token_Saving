@@ -62,8 +62,8 @@ breaks caching everywhere.)
 estimates tokens/call per connector, ranks, flags prune candidates). The disconnect itself is a
 *user action* (the skill documents how, never auto-disconnects).
 **USE-8 — Markdown-first** normalization for web/RAG ingestion — `toks/mdnorm.py` (HTML → clean MD).
-**O-1..O-5 — Output economics** (data-only output, length budgets, reasoning scaling,
-answer-once caching, end-at-deliverable) — see Part F / `toks/output.py`.
+**O-1..O-6 — Output economics** (data-only output, length budgets, reasoning scaling,
+answer-once caching, end-at-deliverable, validate-then-emit) — see Part F / `toks/output.py` + `toks/check.py`.
 **USE-9 — Session phase-splitting + durable `RESUME.md`** — see Part E.
 
 ---
@@ -121,11 +121,14 @@ Kills the #1 waste — re-pasting the same file every turn. The cache persists
 across turns in a session.
 
 **C2. Durable continuity (USE-9 — the fix for "compaction loss").** At the end of
-every turn where work is open, write the checkpoint to `.workbuddy/RESUME.md` via
-`toks/resume.py` — *not* "before compaction" (that event is unobservable, so the
-rule never fired). Block: Active task · Decisions · Modified files · Open questions ·
-Next steps · **Lessons to carry**. On the next turn, `read_resume()` FIRST and
-continue — nothing re-derived from scratch. This is the backbone of the learning loop.
+every turn where work is open, write the checkpoint via `toks/resume.py` to a
+**host-adaptive** durable location: `.workbuddy/RESUME.md` under WorkBuddy, the
+harness task/goal store (e.g. DSH goals) elsewhere — the rule is the durable
+checkpoint on an observable end-of-turn trigger, not the path. *Not* "before
+compaction" (that event is unobservable, so the rule never fired). Block: Active
+task · Decisions · Modified files · Open questions · Next steps · **Lessons to
+carry**. On the next turn, `read_resume()` FIRST and continue — nothing
+re-derived from scratch. This is the backbone of the learning loop.
 
 **C3. Safe-mode boundaries (prevent compression-induced hallucinations).**
 `safemode.risk_level(text)` classifies `unsafe | caution | safe`.
@@ -182,10 +185,13 @@ clean Markdown before sending to the model (`toks/mdnorm.py`: strips markup/scri
 nav/footer chrome, keeps headings/lists/tables/code/links and `[[KEEP]]` zones).
 Try `toks mdnorm --text "$(curl -s URL)"` on any fetched page.
 
-**USE-9 — Session phase-splitting + durable RESUME.md (the continuity fix).**
+**USE-9 — Session phase-splitting + durable checkpoint (the continuity fix).**
 Split discovery / implementation / verification across fresh sessions when a thread
-gets long. At the end of every turn with open work, `write_resume(state)` →
-`.workbuddy/RESUME.md`. Next turn: `read_resume()` and continue. This replaces the
+gets long. At the end of every turn with open work, write the checkpoint
+(`toks checkpoint --emit …` / `resume.write_resume(state)`) to a host-adaptive
+durable location: `.workbuddy/RESUME.md` under WorkBuddy, the harness
+task/goal store elsewhere (v8 — the file path is not the point; the observable
+end-of-turn trigger is). Next turn: read it FIRST and continue. This replaces the
 broken "emit before compaction" rule (compaction is unobservable) with something
 that actually fires.
 
@@ -229,6 +235,12 @@ on the output side.
 summaries, sign-offs, restated context, or "let me know if…" filler. (A1 cuts the
 head; O-5 cuts the tail.)
 
+**O-6 — Validate-then-emit (the retry killer, v8).** Before emitting ANY artifact
+(code, data, markdown), run the cheapest check that would catch a retry
+(`toks check-syntax --text … --lang py|json|md`): does the Python compile? does
+the JSON parse? are code fences balanced? A 1-step check prevents a 2-step retry,
+every time. This generalizes O-1's JSON gate to every output surface.
+
 **Output budget table (O-2 defaults):**
 
 | Task type | Max output |
@@ -244,6 +256,30 @@ head; O-5 cuts the tail.)
 
 ---
 
+## PART G — Step-cost model & input preflight (v8)
+
+Every step re-sends the WHOLE context from prefix cache (USE-0). Spend therefore
+scales with **steps × context**, not with what you write:
+
+    total tokens ≈ uncached_input + steps × cached_context + output
+
+So the cheapest input savings are structural: batch independent work into fewer
+steps, keep files small, start a fresh thread every 8–10 turns. Hygiene (Part D)
+beats micro-compression for total spend.
+
+**G1 — Estimate before execute.** Before any task with ≥5 steps or large output,
+run `toks cost-estimate --steps N --ctx-chars C --out-chars O [--price-per-mtok P]
+[--peak|--idle]` and check the number against your budget. Provider-agnostic:
+prices are passed in, never hardcoded (`TOKS_PRICE_PER_MT` env var). If idle
+rates apply and the task can wait, defer to the next idle window.
+
+**G2 — Prefer structural savings.** Surface-first reads (`toks surface`), delta
+re-reads (`toks dedup --diff`), and fewer steps beat cleverer compression.
+Measured (v8 bench surface): `dedup --diff` saves **77.4%** on a re-read after
+an edit — the near-repeat case plain dedup misses.
+
+---
+
 ## Toolkit usage (portable — any cwd, any install location)
 
 The toolkit is location-independent: `bin/toks` resolves the skill dir via
@@ -252,7 +288,7 @@ hardcoded paths — works under WorkBuddy, Hermes Agent, or any harness with
 Python 3.9+. Run from anywhere:
 
 ```bash
-toks selftest        # FULL suite (currently 132 tests) — must stay GREEN
+toks selftest        # FULL suite (currently 164 tests) — must stay GREEN
 toks demo            # quick self-tests
 toks measure --text "$OUTPUT"   # est. tokens (chars/4) — diagnostic
 toks dedup --text "$(cat file.txt)"        # ref or [FIRST TIME]
@@ -271,6 +307,11 @@ toks toolaudit --manifest conns.json --keep "feishu|notion"   # audit tool surfa
 toks output-budget --task analysis         # O-2 ceiling in lines
 toks output-json --text '{"a":1'           # O-1 gate: VALID / INVALID
 toks output-table --header "id|name" --rows "1|Alice;2|Bob"   # O-1 header-once table
+toks dedup --diff --text "$(cat file.txt)"    # delta re-read (v8): ref | changed-line hunks
+toks cost-estimate --steps 12 --ctx-chars 120000 --peak   # G1: estimate spend BEFORE a task
+toks surface --path file.py                   # read-me-first: one line per symbol (py/json/md/conf)
+toks check-syntax --text "$CODE" --lang py    # O-6 gate: VALID / INVALID before emitting
+toks audit-session --file transcript.txt      # self-audit: re-reads, bloat, loops, bad JSON
 toks --help  # resume helper is a library: `from toks import resume; resume.write_resume(state)` / `resume.read_resume()`
 ```
 

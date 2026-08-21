@@ -33,6 +33,11 @@ tags: [reference]
 | compaction | Context compression the host applies when a thread gets long |
 | WorkBuddy / Hermes | Harnesses with native skill installs |
 | bench | Deterministic stdlib benchmark (run_bench.py, BASELINE.json) |
+| cost-estimate | G1 input preflight: estimate token spend before a task (steps x ctx, peak/idle) |
+| dedup --diff | Delta re-read: ref on exact repeat, changed-line hunks on edit (measured 77.4%) |
+| surface | Read-me-first extractor: one line per symbol/heading/key with line numbers |
+| check-syntax | O-6 gate: VALID / INVALID before emitting (py/json/md) |
+| audit-session | Self-audit: flags re-reads, prose bloat, loops, unvalidated JSON |
 
 Protected-zone marker syntax (write inside code fences to avoid wikilink parsing):
 

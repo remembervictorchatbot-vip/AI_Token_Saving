@@ -60,6 +60,7 @@ replies are written (output), and the learning loop survives (continuity).
 | O-3 | Reasoning scaled to complexity: answer directly for simple tasks; conclusion + decisive points only for complex ones |
 | O-4 | Answer-once session cache: same query + context -> short pointer + delta; staleness guard for evolving analysis |
 | O-5 | End at the deliverable: no trailing summaries, sign-offs, or filler |
+| O-6 (v8) | Validate-then-emit: run the cheapest check that would catch a retry before sending any artifact |
 
 ## Continuity (USE-9) & hygiene
 
@@ -67,9 +68,19 @@ replies are written (output), and the learning loop survives (continuity).
   work: active task - decisions - modified files - open questions - next
   steps - lessons to carry. Read it FIRST on the next turn. Never re-derive
   from scratch. ('Before compaction' is unobservable and never fired.)
+  **Host-adaptive (v8)**: the location follows the harness - .workbuddy/RESUME.md
+  under WorkBuddy, the harness task/goal store elsewhere. The rule is the
+  observable end-of-turn trigger, not the path.
 - Hygiene: close unused tabs, keep files <300 lines, fresh thread every
   8-10 turns.
 - Loop detection: same failed action repeating -> STOP, root-cause first.
+
+## Step-cost model (v8, Part G)
+
+Every step re-sends the whole context from prefix cache: spend scales with
+steps x context. Estimate BEFORE a task (toks cost-estimate), batch work into
+fewer steps, and prefer structural savings (toks surface read-me-first,
+toks dedup --diff delta re-read - measured 77.4%) over cleverer compression.
 
 ## Tool-surface minimization (USE-7)
 

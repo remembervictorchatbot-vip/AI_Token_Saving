@@ -89,6 +89,14 @@ def run():
     data = output.table_lines(["subject", "action"], [["db_schema", "add index on user_id"]])
     results.append(row("O-1 data-only", "chat reply -> table", prose, data))
 
+    # 8. dedup --diff: delta re-read after an edit (fresh cache, deterministic)
+    import tempfile
+    dc3 = dedup.DedupCache(cache_path=os.path.join(tempfile.mkdtemp(), "bench.json"))
+    dc3.diff_ref(tasks.CONFIG_REPEAT)                     # prime (first read)
+    delta = dc3.diff_ref(tasks.CONFIG_REPEAT_DELTA)       # delta hunks only
+    results.append(row("dedup --diff (delta)", "config re-read after edit",
+                       tasks.CONFIG_REPEAT_DELTA, delta or tasks.CONFIG_REPEAT_DELTA))
+
     return results
 
 

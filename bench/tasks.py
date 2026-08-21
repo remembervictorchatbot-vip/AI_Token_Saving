@@ -67,6 +67,12 @@ CONFIG_REPEAT = "\n".join(
     [f"key_{i} = value_{i}" for i in range(60)]
 )  # read 3x in one session -> dedup applies on re-reads
 
+CONFIG_REPEAT_DELTA = "\n".join(
+    [f"key_{i} = value_{i}" for i in range(60)
+     if i not in (15, 37)]
+    + ["key_15 = NEW_VALUE_15", "key_37 = NEW_VALUE_37"]
+)  # same file after an edit -> dedup --diff emits only the changed lines
+
 CHAT_REPLY = (
     "Thank you for reaching out! I'd be happy to help you with your question. "
     "Let me think about this carefully. The answer to your question about the "
