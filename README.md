@@ -42,7 +42,7 @@ TOKS_UPSTREAM=https://api.deepseek.com/v1 python3 dist/deepseek-harness/toks_fil
 
 # 3. Optional — portable CLI on PATH (verify, then use directly):
 export PATH="$PWD/skills/token-savings/bin:$PATH"
-toks selftest        # 131 tests, all must pass
+toks selftest        # 132 tests, all must pass
 ```
 
 **Native one-command installs** (best on these platforms):
@@ -142,7 +142,7 @@ frontier model complies better than a small local one. No inflated claims._
 |---|---|---|
 | **Any harness w/ a model endpoint** (universal) | behavioral rules + context filter — always works | system-prompt bundle + `toks_filter.py` (see [Quick start](#quick-start--works-with-any-model-any-harness)) |
 | **DeepSeek-style harness** (DeepSeek API, LM Studio, Qwen Code, OpenCode) | dedicated adapter — context filter + prompt bundle | see [dist/deepseek-harness/README.md](dist/deepseek-harness/README.md) |
-| **WorkBuddy** | native · 131/131 tests · gated releases | `cp -R skills/* ~/.workbuddy/skills/` |
+| **WorkBuddy** | native · 132/132 tests · gated releases | `cp -R skills/* ~/.workbuddy/skills/` |
 | **Hermes Agent** | verified (installs, registers, enabled) | `cp -R dist/hermes/token-savings ~/.hermes/skills/` then `hermes skills list` |
 | **Codex / Claude Code / OpenCode-style** | behavioral rules port; needs skill conversion | copy `skills/token-savings`, Python 3.9+ on PATH |
 | Ollama / LM Studio (model servers) | no agent loop — condensed prompt applies | same system-prompt bundle |
