@@ -6,7 +6,7 @@ anywhere.
 ## toks (general toolkit)
 
 ```bash
-toks selftest                 # FULL suite (currently 132 tests) - must stay GREEN
+toks selftest                 # FULL suite (currently 164 tests) - must stay GREEN
 toks demo                     # quick self-tests
 toks measure --text "..."     # est. tokens (chars/4) - diagnostic
 toks dedup --text "$(cat file.txt)"        # ref or [FIRST TIME]
@@ -25,6 +25,11 @@ toks toolaudit --manifest conns.json --keep "feishu|notion"   # audit tool surfa
 toks output-budget --task analysis         # O-2 ceiling in lines
 toks output-json --text '{"a":1'           # O-1 gate: VALID / INVALID
 toks output-table --header "id|name" --rows "1|Alice;2|Bob"   # O-1 header-once table
+toks dedup --diff --text "$(cat file.txt)"    # delta re-read (v8): ref | changed-line hunks
+toks cost-estimate --steps 12 --ctx-chars 120000 --peak   # G1: estimate spend BEFORE a task
+toks surface --path file.py                   # read-me-first: one line per symbol (py/json/md/conf)
+toks check-syntax --text "$CODE" --lang py    # O-6 gate: VALID / INVALID before emitting
+toks audit-session --file transcript.txt      # self-audit: re-reads, bloat, loops, bad JSON
 toks --help
 ```
 

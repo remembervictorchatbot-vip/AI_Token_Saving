@@ -1,7 +1,7 @@
 ---
 name: token-savings
 description: "Quality-preserving token & credit saving for every message: dedup repeated file reads, compress tool output (bash/JSON/code), markdown-normalize web/RAG content, audit connector tool-surface cost, budget output length, stabilize the prompt prefix. Load when a session is long, context-heavy, or cost-sensitive — or whenever you re-read files, paste large tool output, or fetch web pages."
-version: 7.0.0
+version: 7.1.0
 author: remembervictorchatbot
 license: MIT
 platforms: [linux, macos, windows]
@@ -36,9 +36,9 @@ is provider-agnostic and pure-stdlib Python (3.9+).
    nulls/debug); code → astrip skeleton; &gt;4KB → archive + skeleton.
 5. **Safe-mode** — secrets/stack traces → pass through VERBATIM (0% compression);
    errors → keep key lines. Never mangle what would cause hallucinations.
-6. **Continuity** — write a durable checkpoint to `.workbuddy/RESUME.md` at the
-   end of any turn with open work; parse it FIRST on resume. Never re-derive
-   from scratch.
+6. **Continuity** — write a durable checkpoint at the end of any turn with
+   open work (host-adaptive: `.workbuddy/RESUME.md` here, the harness's durable
+   store elsewhere); parse it FIRST on resume. Never re-derive from scratch.
 7. **Hygiene** — files &lt;300 lines; fresh thread every 8–10 turns.
 8. **JIT** — compress aggressively, expand on demand via the dedup cache.
 9. **Loop detection** — same failed action repeating → stop, root-cause first.
@@ -55,6 +55,8 @@ is provider-agnostic and pure-stdlib Python (3.9+).
 - **O-4** answer-once: same query + same context already answered this session →
   short pointer + delta. Deterministic facts only; regenerate if inputs changed.
 - **O-5** end at the deliverable — no trailing filler/sign-offs.
+- **O-6** validate-then-emit: before sending any code/data/markdown run the
+  cheapest check that would catch a retry (compiles? parses? fences balanced?).
 
 ## Toolkit (portable)
 The skill dir is resolved via `$HERMES_SKILL_DIR` automatically, so `toks`
@@ -69,10 +71,15 @@ ${HERMES_SKILL_DIR}/bin/toks trim-bash --text "$OUTPUT"
 ${HERMES_SKILL_DIR}/bin/toks mdnorm --text "$(curl -s URL)" --source html
 ${HERMES_SKILL_DIR}/bin/toks toolaudit --manifest conns.json
 ${HERMES_SKILL_DIR}/bin/toks output-budget --task analysis
+${HERMES_SKILL_DIR}/bin/toks dedup --diff --text "$(cat file.txt)"   # delta re-read
+${HERMES_SKILL_DIR}/bin/toks cost-estimate --steps 12 --ctx-chars 120000   # G1 preflight
+${HERMES_SKILL_DIR}/bin/toks surface --path file.py                       # read-me-first
+${HERMES_SKILL_DIR}/bin/toks check-syntax --text "$CODE" --lang py        # O-6 gate
+${HERMES_SKILL_DIR}/bin/toks audit-session --file transcript.txt          # self-audit
 ```
 
 Requires: Python 3.9+ on PATH. No third-party dependencies.
 
 ## Verify
 - `hermes skills list` shows token-savings.
-- `toks selftest` → ALL PASS (132 tests). If a test fails, the install is broken.
+- `toks selftest` → ALL PASS (164 tests). If a test fails, the install is broken.

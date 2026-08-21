@@ -8,7 +8,8 @@
     "trim_bash": 75.1,
     "summarize_grep": 92.5,
     "mdnorm": 28.4,
-    "O-1 data-only": 71.6
+    "O-1 data-only": 71.6,
+    "dedup --diff (delta)": 77.4
   },
-  "aggregate": 49.6
+  "aggregate": 50.0
 }

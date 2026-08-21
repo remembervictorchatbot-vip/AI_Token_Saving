@@ -44,8 +44,11 @@ do not compress.
     close unused tabs/files.
 13. **Loop detection** — the same failed action repeating → stop, diagnose root
     cause first. Never burn tokens retrying blindly.
+14. **Validate-then-emit (O-6)** — before sending any code/data/markdown, run
+    the cheapest check that would catch a retry (compiles? parses? fences
+    balanced?). A 1-step check prevents a 2-step retry.
 
 ## If a toolkit is available
 If Python 3.9+ and the `toks` CLI are available (e.g. `bin/toks`), use:
-`toks dedup|astrip|compress-json|trim-bash|mdnorm|toolaudit|output-budget`
-— pure stdlib, deterministic, tested (132 tests).
+`toks dedup|astrip|compress-json|trim-bash|mdnorm|toolaudit|output-budget|cost-estimate|surface|check-syntax|audit-session`
+— pure stdlib, deterministic, tested (164 tests).

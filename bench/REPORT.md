@@ -11,5 +11,6 @@ _Deterministic, stdlib-only, provider-agnostic (est tokens = chars/4). Measures 
 | summarize_grep | 150 grep hits | 4449 | 334 | 92.5% | 1112 | 83 |
 | mdnorm | 120-paragraph docs page | 14118 | 10109 | 28.4% | 3529 | 2527 |
 | O-1 data-only | chat reply -> table | 345 | 98 | 71.6% | 86 | 24 |
+| dedup --diff (delta) | config re-read after edit | 1067 | 241 | 77.4% | 266 | 60 |
 
-**Aggregate across samples: 67,599 -> 34,099 chars (49.6% saved).**
+**Aggregate across samples: 68,666 -> 34,340 chars (50.0% saved).**
