@@ -145,6 +145,9 @@ def build_parser():
     ap.add_argument("--file", default="")
     ap.add_argument("--task", default="chat_reply")
 
+    sp = sub.add_parser("setup")
+    sp.add_argument("--write-env", action="store_true")
+
     sub.add_parser("doctor")
 
     sub.add_parser("selftest")
@@ -161,6 +164,16 @@ def _resolve(path: str) -> str:
     if base and path and not os.path.isabs(path):
         return os.path.join(base, path)
     return path
+
+
+def _read_text(path: str) -> str:
+    """Read a file with a clean error instead of a traceback (v10 audit fix)."""
+    try:
+        with open(_resolve(path), "r", encoding="utf-8") as fh:
+            return fh.read()
+    except OSError as e:
+        print("toks: cannot read {}: {}".format(path, e.strerror or e), file=sys.stderr)
+        sys.exit(2)
 
 
 def handle_dedup(args):
@@ -250,8 +263,7 @@ def handle_mdnorm(args):
 def handle_toolaudit(args):
     raw = args.text
     if args.manifest:
-        with open(_resolve(args.manifest), "r", encoding="utf-8") as fh:
-            raw = fh.read()
+        raw = _read_text(args.manifest)
     if not raw:
         raw = toolaudit.sample_manifest()
     keep = [k for k in args.keep.split("|") if k] if args.keep else None
@@ -286,8 +298,7 @@ def handle_cost_estimate(args):
 def handle_surface(args):
     text = args.text
     if not text and args.path:
-        with open(_resolve(args.path), "r", encoding="utf-8") as fh:
-            text = fh.read()
+        text = _read_text(args.path)
     print(surface.surface(text, lang=args.lang, path=args.path))
 
 
@@ -299,8 +310,7 @@ def handle_check_syntax(args):
 def handle_input_gate(args):
     text = args.text
     if not text and args.file:
-        with open(_resolve(args.file), "r", encoding="utf-8") as fh:
-            text = fh.read()
+        text = _read_text(args.file)
     print(gate.gate_content(text, use_dedup=not args.no_dedup,
                             min_compress=args.min_compress))
 
@@ -312,8 +322,7 @@ def handle_output_gate(args):
 def handle_autopilot(args):
     text = args.text
     if not text and args.file:
-        with open(_resolve(args.file), "r", encoding="utf-8") as fh:
-            text = fh.read()
+        text = _read_text(args.file)
     print(autopilot.format_directives(autopilot.autopilot(text, task_type=args.task)))
 
 
@@ -321,19 +330,23 @@ def handle_doctor(args):
     print(doctor.format_report(doctor.run_checks()))
 
 
+def handle_setup(args):
+    print(doctor.setup_block())
+    if args.write_env:
+        print("\n[wrote] " + doctor.write_env())
+
+
 def handle_input_meter(args):
     text = args.text
     if not text and args.file:
-        with open(_resolve(args.file), "r", encoding="utf-8") as fh:
-            text = fh.read()
+        text = _read_text(args.file)
     print(input_meter.format_report(input_meter.meter(text)))
 
 
 def handle_audit_session(args):
     text = args.text
     if not text and args.file:
-        with open(args.file, "r", encoding="utf-8") as fh:
-            text = fh.read()
+        text = _read_text(args.file)
     findings = audit.audit_session(text)
     print(audit.format_report(findings))
     if findings:
@@ -383,6 +396,7 @@ HANDLERS = {
     "output-gate": handle_output_gate,
     "autopilot": handle_autopilot,
     "doctor": handle_doctor,
+    "setup": handle_setup,
     "selftest": handle_selftest,
     "demo": handle_demo,
 }

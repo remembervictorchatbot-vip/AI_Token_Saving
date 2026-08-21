@@ -107,7 +107,7 @@ def run():
 
 def render(results):
     lines = [
-        "# Tool-level token-savings benchmark (v7 P3)",
+        "# Tool-level token-savings benchmark (v10)",
         "",
         "_Deterministic, stdlib-only, provider-agnostic (est tokens = chars/4). "
         "Measures the TOOLS on representative samples — NOT an end-to-end agent "

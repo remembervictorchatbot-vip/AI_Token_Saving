@@ -336,7 +336,7 @@ hardcoded paths — works under WorkBuddy, Hermes Agent, or any harness with
 Python 3.9+. Run from anywhere:
 
 ```bash
-toks selftest        # FULL suite (currently 197 tests) — must stay GREEN
+toks selftest        # FULL suite (currently 201 tests) — must stay GREEN
 toks demo            # quick self-tests
 toks measure --text "$OUTPUT"   # est. tokens (chars/4) — diagnostic
 toks dedup --text "$(cat file.txt)"        # ref or [FIRST TIME]

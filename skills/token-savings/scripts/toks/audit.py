@@ -3,7 +3,7 @@
 Scans a session transcript (paste or file) and flags standing-rule violations
 with deterministic heuristics:
   1. re-reads        : identical content blocks appearing >= 2 times (dedup)
-  2. prose bloat     : messages >40 lines with no code fence or table (A1/O-5)
+  2. prose bloat     : messages >40 lines with no structure (code exempt)
   3. loop            : the same command line repeated >= 3 times (A4)
   4. unvalidated JSON: lines that look like JSON but fail to parse (O-1/O-6)
 Recommend-only, like toolaudit: it reports; the agent fixes. Pure stdlib.
@@ -35,10 +35,12 @@ def audit_session(text: str) -> list:
             else:
                 seen[key] = i
 
-    # 2. prose bloat: long paragraphs with no structure
+    # 2. prose bloat: long paragraphs with no structure (code-like blocks exempt)
+    CODE_MARKERS = ("def ", "class ", "import ", "    ", " = ", "};", "{")
     for i, b in enumerate(blocks):
         n = len(b.splitlines())
-        if n > 40 and "```" not in b and "|" not in b:
+        codeish = any(m in b for m in CODE_MARKERS)
+        if n > 40 and "```" not in b and "|" not in b and not codeish:
             findings.append({
                     "rule": "prose-bloat",
                     "line": i + 1,

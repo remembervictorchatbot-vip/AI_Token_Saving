@@ -24,6 +24,21 @@ class TestDoctor(unittest.TestCase):
         self.assertIn("toks doctor", rep)
         self.assertIn("checks OK", rep)
 
+    def test_setup_block_contains_wiring(self):
+        b = doctor.setup_block()
+        self.assertIn("export PATH=", b)
+        self.assertIn("toks doctor", b)
+        self.assertIn("TOKS_UPSTREAM", b)
+
+    def test_write_env(self):
+        import os
+        import tempfile
+        p = os.path.join(tempfile.mkdtemp(), "env")
+        out = doctor.write_env(p)
+        self.assertTrue(os.path.exists(out))
+        with open(out, encoding="utf-8") as fh:
+            self.assertIn("TOKS_UPSTREAM", fh.read())
+
 
 if __name__ == "__main__":
     unittest.main()

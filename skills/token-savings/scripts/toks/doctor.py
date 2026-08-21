@@ -70,3 +70,40 @@ def format_report(checks: list) -> str:
     lines.append("  {}/{} checks OK - autopilot is {}".format(
         ok, len(checks), "fully wired" if ok == len(checks) else "partially wired"))
     return "\n".join(lines)
+
+
+def setup_block() -> str:
+    """Copy-paste autopilot wiring for the current machine (v10: easy apply).
+
+    Prints the exact lines to add to the shell profile so toks is on PATH,
+    plus the optional endpoint-filter wiring and the system-prompt step.
+    """
+    try:
+        from toks import boot
+        root = boot.skill_dir() or "PATH_TO_SKILL_ROOT"
+    except Exception:
+        root = "PATH_TO_SKILL_ROOT"
+    bin_path = os.path.join(root, "bin")
+    lines = [
+        "# toks setup - paste into ~/.bashrc or ~/.zshrc (or equivalent)",
+        "export PATH=\"{}\":$PATH".format(bin_path),
+        "# optional: automatic endpoint compression (input gate at the wire)",
+        "export TOKS_UPSTREAM=<model endpoint, e.g. https://api.deepseek.com/v1>",
+        "export TOKS_PORT=8090",
+        "# then start the filter once:",
+        "#   python3 dist/deepseek-harness/toks_filter.py",
+        "# and paste dist/system-prompt/token-savings-prompt.md at the TOP of",
+        "# your system prompt (rules 1-18; auto-start for any model).",
+        "# verify:  toks doctor   (aim: all OK)",
+    ]
+    return "\n".join(lines)
+
+
+def write_env(path: str = ".toks.env") -> str:
+    """Write a .toks.env template the user can fill in (easy apply)."""
+    content = ("# toks filter wiring (fill in your model endpoint)\n"
+               "TOKS_UPSTREAM=<model endpoint e.g. https://api.deepseek.com/v1>\n"
+               "TOKS_PORT=8090\n")
+    with open(path, "w", encoding="utf-8") as fh:
+        fh.write(content)
+    return path
