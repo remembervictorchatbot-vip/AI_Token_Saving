@@ -23,7 +23,7 @@ SCRIPTS = os.path.join(HERE, "..", "skills", "token-savings", "scripts")
 if SCRIPTS not in sys.path:
     sys.path.insert(0, SCRIPTS)
 
-from toks import boot, compress, dedup, mdnorm, astrip, output  # noqa: E402
+from toks import boot, compress, dedup, mdnorm, astrip, output, gate  # noqa: E402
 
 if not boot.skill_dir():
     sys.exit("toks: cannot locate skill dir (run from repo root or set TOKS_SKILL_DIR)")
@@ -97,12 +97,17 @@ def run():
     results.append(row("dedup --diff (delta)", "config re-read after edit",
                        tasks.CONFIG_REPEAT_DELTA, delta or tasks.CONFIG_REPEAT_DELTA))
 
+    # 9. input-gate: KEEP-protected tiered compression (v9 composite surface)
+    gated = gate.gate_content(tasks.KEEP_JSON, use_dedup=False, mark=False, min_compress=50)
+    results.append(row("input-gate (KEEP json)", "200-item payload with protected zone",
+                       tasks.KEEP_JSON, gated))
+
     return results
 
 
 def render(results):
     lines = [
-        "# Tool-level token-savings benchmark (v7 P3)",
+        "# Tool-level token-savings benchmark (v10)",
         "",
         "_Deterministic, stdlib-only, provider-agnostic (est tokens = chars/4). "
         "Measures the TOOLS on representative samples — NOT an end-to-end agent "

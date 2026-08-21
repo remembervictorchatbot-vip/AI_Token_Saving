@@ -72,6 +72,16 @@ class TestDedup(unittest.TestCase):
         self.assertIsNone(self.dc.ref(big))
         self.assertIsNotNone(self.dc.ref(big))
 
+    def test_max_entries_evicts_oldest(self):
+        dc = dedup.DedupCache(cache_path=os.path.join(self.tmp, "cap.json"), max_entries=3)
+        for x in "abcde":
+            dc.ref(x)
+        s = dc.stats()
+        self.assertEqual(s["entries"], 3)
+        self.assertEqual(s["latest"], dedup.content_hash("e"))
+        # evicted entries no longer ref
+        self.assertIsNone(dc.ref("a"))
+
     def test_reset(self):
         self.dc.ref("z")
         self.dc.reset()

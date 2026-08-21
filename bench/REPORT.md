@@ -12,5 +12,6 @@ _Deterministic, stdlib-only, provider-agnostic (est tokens = chars/4). Measures 
 | mdnorm | 120-paragraph docs page | 14118 | 10109 | 28.4% | 3529 | 2527 |
 | O-1 data-only | chat reply -> table | 345 | 98 | 71.6% | 86 | 24 |
 | dedup --diff (delta) | config re-read after edit | 1067 | 241 | 77.4% | 266 | 60 |
+| input-gate (KEEP json) | 200-item payload with protected zone | 7585 | 2160 | 71.5% | 1896 | 540 |
 
-**Aggregate across samples: 68,666 -> 34,340 chars (50.0% saved).**
+**Aggregate across samples: 76,251 -> 36,500 chars (52.1% saved).**

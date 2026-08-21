@@ -5,7 +5,7 @@ tags: [faq]
 # 09 - FAQ
 
 **Does it really save tokens?**
-Yes, measurably at the tool level - 50.0% aggregate on representative
+Yes, measurably at the tool level - 52.1% aggregate on representative
 samples ([[04 - Benchmark]]). Agent-level savings scale with how well the
 model follows the rules. Reproduce with 'python bench/run_bench.py'.
 
@@ -30,7 +30,7 @@ the deterministic bench. The project's honesty policy: claimed vs measured
 is always stated.
 
 **How do I know the install works?**
-'toks selftest' runs 164 tests and must stay GREEN (CI enforces this on
+'toks selftest' runs 201 tests and must stay GREEN (CI enforces this on
 Python 3.9-3.13). Hermes: 'hermes skills list' after install.
 
 **What about the context filter?**

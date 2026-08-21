@@ -47,7 +47,7 @@ replies are written (output), and the learning loop survives (continuity).
 - **Safe-mode**: risk_level classifies unsafe | caution | safe. Secrets and
   stack traces = unsafe = 0% compression, pass through verbatim (mangling
   them manufactures hallucinations).
-- **Stable prefix (USE-0)**: system instructions / tool schemas / standing
+  rules stay byte-identical at the top; variable content goes at the end.
   rules stay byte-identical at the top; variable content goes at the end.
   Never rewrite the prefix (rewriting breaks prefix caching on any runtime).
 
@@ -81,6 +81,17 @@ Every step re-sends the whole context from prefix cache: spend scales with
 steps x context. Estimate BEFORE a task (toks cost-estimate), batch work into
 fewer steps, and prefer structural savings (toks surface read-me-first,
 toks dedup --diff delta re-read - measured 77.4%) over cleverer compression.
+
+## Autopilot (v10, I-5..I-8) - the self-enforcing loop
+
+- **output-gate (I-5)** - O-1..O-6 checks on a reply before finalizing: O-2
+  budget, JSON/fence validity, O-5 filler. Fix what it flags, then emit.
+- **autopilot (I-6)** - one command over a session transcript: input-meter +
+  audit-session + output-gate, emits NEXT-TURN DIRECTIVES to read first.
+- **doctor (I-7)** - environment self-check: python, toolkit, input-filter
+  wiring, PATH - prints the one-liner to fix each WARN/MISS.
+- **checkpoint --auto (I-8)** - heuristically extracts open work from the
+  last messages: USE-9 continuity becomes one call, no manual fields.
 
 ## Tool-surface minimization (USE-7)
 

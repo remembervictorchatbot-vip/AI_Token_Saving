@@ -9,7 +9,8 @@
     "summarize_grep": 92.5,
     "mdnorm": 28.4,
     "O-1 data-only": 71.6,
-    "dedup --diff (delta)": 77.4
+    "dedup --diff (delta)": 77.4,
+    "input-gate (KEEP json)": 71.5
   },
-  "aggregate": 50.0
+  "aggregate": 52.1
 }

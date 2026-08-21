@@ -28,6 +28,30 @@ def emit_checkpoint(state: dict) -> str:
     return "\n".join(lines)
 
 
+def auto_state(text: str) -> dict:
+    """Heuristically extract checkpoint state from a transcript (v10).
+
+    No manual fields needed: active task = first substantive line; next steps
+    = lines starting with todo/next; decisions = lines starting with decided.
+    Deterministic and testable; refine heuristics as patterns appear.
+    """
+    active, decisions, next_steps = "", [], []
+    for ln in text.splitlines():
+        s = ln.strip().lstrip("-*").strip()
+        low = s.lower()
+        if low.startswith(("todo:", "next:", "next step", "next steps")):
+            next_steps.append(s)
+        elif low.startswith(("decided", "decision:", "decision ->")):
+            decisions.append(s)
+    for ln in text.splitlines():
+        s = ln.strip()
+        if len(s) > 20 and not s.startswith(("#", "[", "```", "|")):
+            active = s[:120]
+            break
+    return {"Active task": active or "(none)",
+            "Decisions": decisions, "Next steps": next_steps}
+
+
 def parse_checkpoint(text: str) -> dict:
     m = re.search(r"<!-- CHECKPOINT -->(.*?)<!-- /CHECKPOINT -->", text, re.DOTALL)
     body = m.group(1) if m else text

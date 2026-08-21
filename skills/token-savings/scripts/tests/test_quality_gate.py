@@ -27,6 +27,11 @@ class TestQualityGate(unittest.TestCase):
         q = measure.quality_gate("hello world", "hello", extra_protected=["world"])
         self.assertFalse(q["pass"])
 
+    def test_facts_via_extra_protected(self):
+        q = measure.quality_gate("id:123 name:foo", "name:foo", extra_protected=["id:123"])
+        self.assertFalse(q["pass"])
+        self.assertIn("id:123", q["missing"])
+
     def test_extract(self):
         regs = measure.extract_protected("a [[KEEP]]x[[/KEEP]] b")
         self.assertEqual(regs, ["x"])

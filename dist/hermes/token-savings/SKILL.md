@@ -1,7 +1,7 @@
 ---
 name: token-savings
 description: "Quality-preserving token & credit saving for every message: dedup repeated file reads, compress tool output (bash/JSON/code), markdown-normalize web/RAG content, audit connector tool-surface cost, budget output length, stabilize the prompt prefix. Load when a session is long, context-heavy, or cost-sensitive — or whenever you re-read files, paste large tool output, or fetch web pages."
-version: 7.1.0
+version: 7.3.0
 author: remembervictorchatbot
 license: MIT
 platforms: [linux, macos, windows]
@@ -76,10 +76,15 @@ ${HERMES_SKILL_DIR}/bin/toks cost-estimate --steps 12 --ctx-chars 120000   # G1 
 ${HERMES_SKILL_DIR}/bin/toks surface --path file.py                       # read-me-first
 ${HERMES_SKILL_DIR}/bin/toks check-syntax --text "$CODE" --lang py        # O-6 gate
 ${HERMES_SKILL_DIR}/bin/toks audit-session --file transcript.txt          # self-audit
+${HERMES_SKILL_DIR}/bin/toks input-gate --text "$(cat tool_output.txt)"   # I-1: context-ready
+${HERMES_SKILL_DIR}/bin/toks input-meter --file transcript.txt             # session input cost
+${HERMES_SKILL_DIR}/bin/toks output-gate --text "$REPLY" --task analysis   # I-5 before emit
+${HERMES_SKILL_DIR}/bin/toks autopilot --file transcript.txt               # I-6 loop
+${HERMES_SKILL_DIR}/bin/toks doctor                                         # I-7 wiring check
 ```
 
 Requires: Python 3.9+ on PATH. No third-party dependencies.
 
 ## Verify
 - `hermes skills list` shows token-savings.
-- `toks selftest` → ALL PASS (164 tests). If a test fails, the install is broken.
+- `toks selftest` → ALL PASS (201 tests). If a test fails, the install is broken.

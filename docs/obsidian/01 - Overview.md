@@ -32,11 +32,11 @@ credit saving discipline for AI agents:
 2. Optional context filter: run dist/deepseek-harness/toks_filter.py with
    TOKS_UPSTREAM set, point the harness at http://127.0.0.1:8090/v1.
 3. Optional portable CLI: add skills/token-savings/bin to PATH, then
-   'toks selftest' (164 tests, must pass).
+   'toks selftest' (201 tests, must pass).
 
 ## Measured impact (tool-level, deterministic)
 
-Aggregate **50.0% input savings** on representative samples - see
+Aggregate **52.1% input savings** on representative samples - see
 [[04 - Benchmark]].
 
 ## Reading order in this vault

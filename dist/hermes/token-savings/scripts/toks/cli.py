@@ -24,7 +24,7 @@ import json
 import os
 import sys
 
-from toks import dedup, compress, measure, checkpoint, astrip, safemode, hygiene, protect, mdnorm, toolaudit, output, cost, surface, check, audit  # noqa: E402
+from toks import dedup, compress, measure, checkpoint, astrip, safemode, hygiene, protect, mdnorm, toolaudit, output, cost, surface, check, audit, gate, input_meter, autopilot, doctor  # noqa: E402
 from toks.demo import run_demo
 
 
@@ -67,9 +67,11 @@ def build_parser():
     qg = sub.add_parser("quality-gate")
     qg.add_argument("--before", required=True)
     qg.add_argument("--after", required=True)
+    qg.add_argument("--facts", default="", help="pipe-separated facts to verify, e.g. id:123|name:foo")
 
     cp = sub.add_parser("checkpoint")
     cp.add_argument("--emit", action="store_true")
+    cp.add_argument("--auto", action="store_true", help="auto-extract open work from --text (v10)")
     cp.add_argument("--text", default="")
     cp.add_argument("--active-task", default="")
     cp.add_argument("--decisions", default="")
@@ -124,6 +126,30 @@ def build_parser():
     au.add_argument("--text", default="")
     au.add_argument("--file", default="")
 
+    ig = sub.add_parser("input-gate")
+    ig.add_argument("--text", default="")
+    ig.add_argument("--file", default="")
+    ig.add_argument("--no-dedup", action="store_true")
+    ig.add_argument("--min-compress", type=int, default=80)
+
+    im = sub.add_parser("input-meter")
+    im.add_argument("--text", default="")
+    im.add_argument("--file", default="")
+
+    og = sub.add_parser("output-gate")
+    og.add_argument("--text", required=True)
+    og.add_argument("--task", default="chat_reply")
+
+    ap = sub.add_parser("autopilot")
+    ap.add_argument("--text", default="")
+    ap.add_argument("--file", default="")
+    ap.add_argument("--task", default="chat_reply")
+
+    sp = sub.add_parser("setup")
+    sp.add_argument("--write-env", action="store_true")
+
+    sub.add_parser("doctor")
+
     sub.add_parser("selftest")
     sub.add_parser("demo")
     return p
@@ -138,6 +164,16 @@ def _resolve(path: str) -> str:
     if base and path and not os.path.isabs(path):
         return os.path.join(base, path)
     return path
+
+
+def _read_text(path: str) -> str:
+    """Read a file with a clean error instead of a traceback (v10 audit fix)."""
+    try:
+        with open(_resolve(path), "r", encoding="utf-8") as fh:
+            return fh.read()
+    except OSError as e:
+        print("toks: cannot read {}: {}".format(path, e.strerror or e), file=sys.stderr)
+        sys.exit(2)
 
 
 def handle_dedup(args):
@@ -183,7 +219,8 @@ def handle_measure(args):
 
 
 def handle_quality_gate(args):
-    print(measure.quality_gate(args.before, args.after))
+    extra = [f for f in args.facts.split("|") if f] if args.facts else None
+    print(measure.quality_gate(args.before, args.after, extra_protected=extra))
 
 
 def handle_checkpoint(args):
@@ -196,6 +233,8 @@ def handle_checkpoint(args):
             "Lessons to carry": args.lessons.split("|") if args.lessons else [],
         }
         print(checkpoint.emit_checkpoint(state))
+    elif args.auto:
+        print(checkpoint.emit_checkpoint(checkpoint.auto_state(args.text)))
     else:
         print(checkpoint.parse_checkpoint(args.text))
 
@@ -224,8 +263,7 @@ def handle_mdnorm(args):
 def handle_toolaudit(args):
     raw = args.text
     if args.manifest:
-        with open(_resolve(args.manifest), "r", encoding="utf-8") as fh:
-            raw = fh.read()
+        raw = _read_text(args.manifest)
     if not raw:
         raw = toolaudit.sample_manifest()
     keep = [k for k in args.keep.split("|") if k] if args.keep else None
@@ -260,8 +298,7 @@ def handle_cost_estimate(args):
 def handle_surface(args):
     text = args.text
     if not text and args.path:
-        with open(_resolve(args.path), "r", encoding="utf-8") as fh:
-            text = fh.read()
+        text = _read_text(args.path)
     print(surface.surface(text, lang=args.lang, path=args.path))
 
 
@@ -270,11 +307,46 @@ def handle_check_syntax(args):
     print(msg)
 
 
+def handle_input_gate(args):
+    text = args.text
+    if not text and args.file:
+        text = _read_text(args.file)
+    print(gate.gate_content(text, use_dedup=not args.no_dedup,
+                            min_compress=args.min_compress))
+
+
+def handle_output_gate(args):
+    print(output.gate_reply(args.text, task_type=args.task))
+
+
+def handle_autopilot(args):
+    text = args.text
+    if not text and args.file:
+        text = _read_text(args.file)
+    print(autopilot.format_directives(autopilot.autopilot(text, task_type=args.task)))
+
+
+def handle_doctor(args):
+    print(doctor.format_report(doctor.run_checks()))
+
+
+def handle_setup(args):
+    print(doctor.setup_block())
+    if args.write_env:
+        print("\n[wrote] " + doctor.write_env())
+
+
+def handle_input_meter(args):
+    text = args.text
+    if not text and args.file:
+        text = _read_text(args.file)
+    print(input_meter.format_report(input_meter.meter(text)))
+
+
 def handle_audit_session(args):
     text = args.text
     if not text and args.file:
-        with open(args.file, "r", encoding="utf-8") as fh:
-            text = fh.read()
+        text = _read_text(args.file)
     findings = audit.audit_session(text)
     print(audit.format_report(findings))
     if findings:
@@ -319,6 +391,12 @@ HANDLERS = {
     "surface": handle_surface,
     "check-syntax": handle_check_syntax,
     "audit-session": handle_audit_session,
+    "input-gate": handle_input_gate,
+    "input-meter": handle_input_meter,
+    "output-gate": handle_output_gate,
+    "autopilot": handle_autopilot,
+    "doctor": handle_doctor,
+    "setup": handle_setup,
     "selftest": handle_selftest,
     "demo": handle_demo,
 }

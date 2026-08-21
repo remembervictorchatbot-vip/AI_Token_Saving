@@ -39,10 +39,11 @@ def is_ref(token: str) -> Optional[str]:
 
 
 class DedupCache:
-    def __init__(self, cache_path: str = DEFAULT_CACHE):
+    def __init__(self, cache_path: str = DEFAULT_CACHE, max_entries: int = 500):
         self.cache_path = cache_path
         self.store: Dict[str, dict] = self._load()
         self.latest = self.store.get("_latest")   # last seen content (for diff)
+        self.max_entries = max_entries
         self.hits = 0
         self.stored = 0
 
@@ -58,8 +59,13 @@ class DedupCache:
         data = dict(self.store)
         if self.latest is not None:
             data["_latest"] = self.latest
+        # cache hygiene (v9): cap entries so long sessions do not degrade
+        keys = [k for k in data if k != "_latest"]
+        while len(keys) > self.max_entries:
+            del data[keys.pop(0)]
         with open(self.cache_path, "w", encoding="utf-8") as f:
             json.dump(data, f, ensure_ascii=False)
+        self.store = {k: v for k, v in data.items() if k != "_latest"}
 
     def ref(self, content: str) -> Optional[str]:
         """Return ref token if already seen (substitute it); else None (keep full)."""

@@ -20,7 +20,9 @@ Test:   python3 test_filter.py
 
 Lossy-by-design (one-way proxy): bulk tool output is compressed and the exact
 original is NOT recoverable from the model's context — keep your own logs for
-exact data. [[KEEP]] zones and secrets always pass through verbatim.
+exact data. [[KEEP]] zones and secrets always pass through verbatim (v9: the
+request body runs the automatic input gate - tiered compression with protected
+zones kept verbatim and a never-grow guarantee).
 """
 import json
 import os
@@ -45,11 +47,11 @@ def _scripts_dir():
 _SCRIPTS = _scripts_dir()
 if _SCRIPTS:
     sys.path.insert(0, _SCRIPTS)
-    from toks import compress, mdnorm, safemode  # noqa: E402
+    from toks import compress, mdnorm, safemode, gate  # noqa: E402
 else:
     print("WARN: toks toolkit not found (set TOKS_SKILL_DIR). Running passthrough.",
           file=sys.stderr)
-    compress = mdnorm = safemode = None
+    compress = mdnorm = safemode = gate = None
 
 KEEP_OPEN, KEEP_CLOSE = "[[KEEP]]", "[[/KEEP]]"
 
@@ -68,6 +70,14 @@ def compress_content(text: str, seen: dict) -> str:
     if key in seen:
         return f"§ref:{key & 0xffffffff:08x}§ (identical content earlier in this conversation)"
     seen[key] = True
+
+    # v9: run the automatic input gate (safemode -> tiered compression ->
+    # protected-zone protection). No marker in proxy mode: idempotency and
+    # cross-request dedup stay intentionally off here (no JIT expansion at
+    # the proxy - see README).
+    if gate:
+        return gate.gate_content(text, use_dedup=False,
+                                 min_compress=MIN_COMPRESS, mark=False)
 
     stripped = text.strip()
     # JSON payloads -> compress_json
