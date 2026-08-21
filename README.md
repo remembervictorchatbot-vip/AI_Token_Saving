@@ -201,6 +201,14 @@ Those are powerful but heavyweight (torch, native serving stacks) and live at th
 API/serving layer this project deliberately doesn't control. This toolkit
 achieves the same *discipline* with a pure-stdlib, portable, testable core.
 
+## Documentation 📚
+
+- [docs/](docs/) — index: **Obsidian study vault** (`docs/obsidian/`)
+  and **GitHub wiki staging** (`docs/wiki/`) with full architecture, CLI
+  reference, benchmark, skills, and glossary notes.
+- [DeepSeek-harness adapter](dist/deepseek-harness/README.md) — wiring guide
+  for the context filter.
+
 ## Community 🤝
 
 [Contributing](CONTRIBUTING.md) · [Code of Conduct](CODE_OF_CONDUCT.md) ·
