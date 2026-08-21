@@ -1,5 +1,13 @@
 # AI Token Saving — Unified Skills
 
+<p align="center">
+  <img src="docs/planet-logo.svg" alt="little lovely planet" width="150">
+</p>
+
+<p align="center">
+  <b>little lovely planet</b> — quality-preserving token & credit savings for AI agents
+</p>
+
 A single, consolidated, quality-preserving **token-saving system** for AI coding
 agents (WorkBuddy / Claude Code / Codex-style agents). It compresses input
 context, strips output fluff, and keeps the learning loop alive across context
@@ -119,3 +127,9 @@ lifecycle and delegates all token mechanics here.
 ## License
 
 MIT — see [LICENSE](LICENSE).
+
+---
+
+<p align="center">
+  <em>made with ♥ on a little lovely planet 🌍</em>
+</p>

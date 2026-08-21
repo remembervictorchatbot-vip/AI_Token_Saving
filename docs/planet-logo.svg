@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 320" role="img" aria-label="little lovely planet">
+  <title>little lovely planet</title>
+  <desc>A small smiling teal planet with a ring, stars and rosy cheeks.</desc>
+  <circle cx="40" cy="52" r="3" fill="#FAC775"/>
+  <circle cx="276" cy="64" r="2.5" fill="#B5D4F4"/>
+  <circle cx="252" cy="232" r="2.5" fill="#FAC775"/>
+  <path d="M62 238 L64 244 L70 246 L64 248 L62 254 L60 248 L54 246 L60 244 Z" fill="#FAC775"/>
+  <ellipse cx="160" cy="160" rx="150" ry="46" fill="none" stroke="#0F6E56" stroke-width="10" transform="rotate(-18 160 160)"/>
+  <circle cx="160" cy="160" r="88" fill="#5DCAA5"/>
+  <path d="M160 72 A88 88 0 0 1 160 248 A76 76 0 0 0 160 72 Z" fill="#0F6E56"/>
+  <ellipse cx="128" cy="138" rx="26" ry="15" fill="#E1F5EE" transform="rotate(-15 128 138)"/>
+  <ellipse cx="206" cy="172" rx="22" ry="13" fill="#E1F5EE" transform="rotate(10 206 172)"/>
+  <ellipse cx="148" cy="206" rx="18" ry="11" fill="#E1F5EE" transform="rotate(-5 148 206)"/>
+  <circle cx="138" cy="150" r="6" fill="#04342C"/>
+  <circle cx="182" cy="150" r="6" fill="#04342C"/>
+  <circle cx="124" cy="166" r="7" fill="#F0997B" opacity="0.5"/>
+  <circle cx="196" cy="166" r="7" fill="#F0997B" opacity="0.5"/>
+  <path d="M132 172 Q160 196 188 172" fill="none" stroke="#04342C" stroke-width="6" stroke-linecap="round"/>
+</svg>
