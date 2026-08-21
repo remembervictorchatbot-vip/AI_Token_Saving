@@ -128,7 +128,8 @@ frontier model complies better than a small local one. No inflated claims._
 | **WorkBuddy** | native · 131/131 tests · gated releases | `cp -R skills/* ~/.workbuddy/skills/` |
 | **Hermes Agent** | verified (installs, registers, enabled) | `cp -R dist/hermes/token-savings ~/.hermes/skills/` then `hermes skills list` |
 | **Codex / Claude Code / OpenCode-style** | behavioral rules port; needs skill conversion | copy `skills/token-savings`, Python 3.9+ on PATH |
-| **Harness w/o skill loader** (custom DeepSeek harness, AI Studio, local agents) | system-prompt transplant | inject `dist/system-prompt/token-savings-prompt.md` at the top of the system prompt |
+| **Harness w/o skill loader** (custom DeepSeek harness, AI Studio, local agents) | system-prompt transplant + context filter | inject `dist/system-prompt/token-savings-prompt.md`; run `dist/deepseek-harness/toks_filter.py` in front of your model endpoint |
+| **DeepSeek-style harness** (OpenAI-compatible: DeepSeek API, LM Studio, Qwen Code, OpenCode) | dedicated adapter — context filter + prompt bundle | see [dist/deepseek-harness/README.md](dist/deepseek-harness/README.md) |
 | Ollama / LM Studio (model servers) | no agent loop — condensed prompt applies | same system-prompt bundle |
 
 The toolkit is location-independent: `bin/toks` resolves its own skill dir via
