@@ -48,4 +48,4 @@ do not compress.
 ## If a toolkit is available
 If Python 3.9+ and the `toks` CLI are available (e.g. `bin/toks`), use:
 `toks dedup|astrip|compress-json|trim-bash|mdnorm|toolaudit|output-budget`
-— pure stdlib, deterministic, tested (131 tests).
+— pure stdlib, deterministic, tested (132 tests).
