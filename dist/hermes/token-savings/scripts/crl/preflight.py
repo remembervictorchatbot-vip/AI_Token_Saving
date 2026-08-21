@@ -109,7 +109,7 @@ def lint_vba(text):
     for blk in blocks:
         # Strip comments: explanatory prose (e.g. "`On Error Resume Next` ...")
         # must not be mistaken for live error handling in the procedure.
-        blk_code = "\n".join(_code_part(l) for l in blk.splitlines())
+        blk_code = "\n".join(_code_part(line) for line in blk.splitlines())
         if re.search(r'\bOn\s+Error\s+Resume\s+Next\b', blk_code, re.I) and \
            not re.search(r'\bOn\s+Error\s+GoTo\s+\S+', blk_code, re.I):
             m = re.search(r'(?:Sub|Function|Property)\s+([A-Za-z_]\w*)', blk)
@@ -128,7 +128,7 @@ def lint_vba(text):
     #    but ignores full-line comments -- a procedure that survives only in a
     #    commented-out call site is still dead.
     def _strip_comments(s):
-        return "\n".join(l for l in s.splitlines() if not l.lstrip().startswith("'"))
+        return "\n".join(line for line in s.splitlines() if not line.lstrip().startswith("'"))
 
     code_only = _strip_comments(text)
     # Map each procedure to its own block so self-references -- including VBA's

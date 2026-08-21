@@ -3,7 +3,7 @@ import os
 import tempfile
 import unittest
 
-from toks import dedup, compress, astrip, safemode, measure, checkpoint, protect
+from toks import dedup, astrip, safemode, measure, checkpoint, protect
 
 
 class TestEdgeCases(unittest.TestCase):

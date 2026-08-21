@@ -1,7 +1,6 @@
 """Portable skill-dir resolution + launcher shim (v7)."""
 import os
 import subprocess
-import sys
 import tempfile
 import unittest
 
@@ -48,9 +47,13 @@ class TestBoot(unittest.TestCase):
 
 class TestShim(unittest.TestCase):
     def test_shim_runs_from_any_cwd(self):
+        # On Windows, test the .bat launcher; on POSIX, test the shell script.
+        shim = os.path.join(ROOT, "bin", "toks.bat") if os.name == "nt" else SHIM
+        if not os.path.isfile(shim):
+            self.skipTest(f"launcher not found: {shim}")
         with tempfile.TemporaryDirectory() as tmp:
             out = subprocess.run(
-                [SHIM, "--help"],
+                [shim, "--help"],
                 cwd=tmp,
                 capture_output=True, text=True,
             )

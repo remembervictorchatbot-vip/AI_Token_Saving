@@ -1,5 +1,4 @@
 """Multi-surface compression primitives (JSON / bash / grep / skeleton)."""
-import json
 import unittest
 
 from toks import compress

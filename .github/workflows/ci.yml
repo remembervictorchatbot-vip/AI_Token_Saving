@@ -32,6 +32,34 @@ jobs:
           cd /tmp
           bash ${{ github.workspace }}/skills/token-savings/bin/toks --help | grep -q usage
 
-      - name: Benchmark smoke (tool-level report)
+      - name: Benchmark regression gate
         working-directory: bench
-        run: python run_bench.py > /dev/null
+        run: python run_bench.py --check
+
+      - name: Hermes bundle drift check
+        run: python build_hermes_bundle.py --check
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install ruff
+        run: pip install ruff
+      - name: Lint (errors + logical flaws only)
+        run: ruff check skills/token-savings/scripts/ build_hermes_bundle.py
+
+  windows-launcher:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: toks.bat help smoke
+        run: skills\token-savings\bin\toks.bat --help
+      - name: toks.bat selftest
+        working-directory: skills/token-savings/scripts
+        run: ..\bin\toks.bat selftest

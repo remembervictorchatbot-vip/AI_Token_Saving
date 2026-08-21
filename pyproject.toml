@@ -1,0 +1,9 @@
+[tool.ruff]
+line-length = 120
+
+[tool.ruff.lint]
+# Token-efficiency project: longer lines are intentional (fewer newline tokens).
+# Ignore E501 (line too long). Focus on real bugs: unused imports, syntax errors,
+# logical flaws, ambiguous names, semicolon statements.
+ignore = ["E501"]
+select = ["E", "F"]

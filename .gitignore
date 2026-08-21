@@ -7,6 +7,7 @@ __pycache__/
 # Runtime caches produced by the toolkit
 toks/.cache/
 **/.cache/
+.crl_index.json
 
 # OS / editor
 .DS_Store

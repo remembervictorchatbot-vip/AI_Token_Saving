@@ -5,7 +5,7 @@ Two pieces, both portable and pure-stdlib:
 | Piece | What it does |
 |---|---|
 | `toks_filter.py` | OpenAI-compatible **context filter** — sits between your harness and the model, compresses request bodies (repeat blobs, big JSON, HTML, logs) before they reach the model. Zero changes to the harness. |
-| `token-savings-prompt.md` | Condensed standing-rules bundle — inject at the TOP of your harness's system prompt (fluff-strip, length budgets, dedup discipline, continuity). |
+| `../system-prompt/token-savings-prompt.md` | Condensed standing-rules bundle — inject at the TOP of your harness's system prompt (fluff-strip, length budgets, dedup discipline, continuity). Canonical copy lives in `dist/system-prompt/`; copy it alongside this folder for a self-contained distribution. |
 
 ## Assumptions (stated honestly)
 
