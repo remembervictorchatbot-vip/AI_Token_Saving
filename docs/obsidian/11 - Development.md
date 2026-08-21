@@ -8,7 +8,7 @@ tags: [dev]
 
 ```bash
 cd skills/token-savings/scripts
-python -m toks.cli selftest    # 164 tests, acceptance gate
+python -m toks.cli selftest    # 179 tests, acceptance gate
 python -m toks.cli demo        # quick smoke
 cd ../../.. && python bench/run_bench.py --check   # benchmark regression gate
 ```
@@ -43,7 +43,7 @@ Hermes frontmatter + wording).
 ## Contributing
 
 - [CONTRIBUTING.md](../../CONTRIBUTING.md) - add/update tests in
-  skills/token-savings/scripts/tests/, run selftest (164 tests, must pass).
+  skills/token-savings/scripts/tests/, run selftest (179 tests, must pass).
 - [CODE_OF_CONDUCT.md](../../CODE_OF_CONDUCT.md), [SECURITY.md](../../SECURITY.md).
 
 See also: [[05 - Skills]], [[06 - Adapters]].

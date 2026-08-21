@@ -38,6 +38,9 @@ tags: [reference]
 | surface | Read-me-first extractor: one line per symbol/heading/key with line numbers |
 | check-syntax | O-6 gate: VALID / INVALID before emitting (py/json/md) |
 | audit-session | Self-audit: flags re-reads, prose bloat, loops, unvalidated JSON |
+| input-gate | I-1 automatic input processor: dedup -> tiered compress -> safe-mode -> protected zones -> fidelity marker (71.5%) |
+| input-meter | Session input cost estimator + recoverable repeat waste |
+| I-1..I-4 | Input economics: compress-before-inject, context budget, stable prefix, verify fidelity |
 
 Protected-zone marker syntax (write inside code fences to avoid wikilink parsing):
 

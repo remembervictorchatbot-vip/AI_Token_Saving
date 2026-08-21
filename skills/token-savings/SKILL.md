@@ -256,6 +256,31 @@ every time. This generalizes O-1's JSON gate to every output surface.
 
 ---
 
+## PART H — Input economics (I-1..I-4, v9)
+
+The input side now has the same discipline as output (O-1..O-6).
+
+**I-1 — Compress before inject (automatic).** Any content crossing into
+context passes `toks input-gate` (or the wired filter proxy): idempotency →
+safemode → dedup → tiered compression → protected-zone protection → fidelity
+marker. Target ≥50% on tool output; NEVER on user literals — safemode and
+protected zones make that mechanical, not voluntary. Measured (v9 bench
+surface): input-gate saves **71.5%** on a 200-item payload with a protected
+zone — the case plain compress_json cannot safely touch.
+
+**I-2 — Input context budget.** Decide the assembled-context ceiling BEFORE
+building it (same task table as O-2). When the session approaches the
+ceiling, split the thread (USE-9) instead of growing it.
+
+**I-3 — Stable prefix is the input baseline (USE-0).** Never dedup or rewrite
+the prefix; only the variable suffix.
+
+**I-4 — Verify fidelity.** After any lossy step, run
+`toks quality-gate --before … --after … --facts "id:123|path:/x"`: every key
+fact must survive; on a miss, keep the original for that region.
+
+---
+
 ## PART G — Step-cost model & input preflight (v8)
 
 Every step re-sends the WHOLE context from prefix cache (USE-0). Spend therefore
@@ -288,7 +313,7 @@ hardcoded paths — works under WorkBuddy, Hermes Agent, or any harness with
 Python 3.9+. Run from anywhere:
 
 ```bash
-toks selftest        # FULL suite (currently 164 tests) — must stay GREEN
+toks selftest        # FULL suite (currently 179 tests) — must stay GREEN
 toks demo            # quick self-tests
 toks measure --text "$OUTPUT"   # est. tokens (chars/4) — diagnostic
 toks dedup --text "$(cat file.txt)"        # ref or [FIRST TIME]
@@ -299,7 +324,7 @@ toks compress-json --text '{"a":1,"b":null}'
 toks trim-bash --text "$OUTPUT" --max-lines 40
 toks summarize-grep --text "$GREP" --top 10
 toks protect --text "..." --mode code|json|text   # guarantees [[KEEP]] survives
-toks quality-gate --before "..." --after "..."
+toks quality-gate --before "..." --after "..." --facts "id:123|path:/x"   # I-4 fidelity
 toks checkpoint --emit --active-task "..." --decisions "d1|d2" --open-questions "q1|q2" --lessons "l1"
 toks mdnorm --text "$HTML" --source html   # HTML -> clean Markdown (USE-8)
 toks mdnorm --text "$MD" --source md       # normalize messy Markdown
@@ -312,6 +337,8 @@ toks cost-estimate --steps 12 --ctx-chars 120000 --peak   # G1: estimate spend B
 toks surface --path file.py                   # read-me-first: one line per symbol (py/json/md/conf)
 toks check-syntax --text "$CODE" --lang py    # O-6 gate: VALID / INVALID before emitting
 toks audit-session --file transcript.txt      # self-audit: re-reads, bloat, loops, bad JSON
+toks input-gate --text "$(cat tool_output.txt)"   # I-1: context-ready content (dedup->compress->protect)
+toks input-meter --file transcript.txt         # session input cost + recoverable repeat waste
 toks --help  # resume helper is a library: `from toks import resume; resume.write_resume(state)` / `resume.read_resume()`
 ```
 

@@ -23,7 +23,7 @@ SCRIPTS = os.path.join(HERE, "..", "skills", "token-savings", "scripts")
 if SCRIPTS not in sys.path:
     sys.path.insert(0, SCRIPTS)
 
-from toks import boot, compress, dedup, mdnorm, astrip, output  # noqa: E402
+from toks import boot, compress, dedup, mdnorm, astrip, output, gate  # noqa: E402
 
 if not boot.skill_dir():
     sys.exit("toks: cannot locate skill dir (run from repo root or set TOKS_SKILL_DIR)")
@@ -96,6 +96,11 @@ def run():
     delta = dc3.diff_ref(tasks.CONFIG_REPEAT_DELTA)       # delta hunks only
     results.append(row("dedup --diff (delta)", "config re-read after edit",
                        tasks.CONFIG_REPEAT_DELTA, delta or tasks.CONFIG_REPEAT_DELTA))
+
+    # 9. input-gate: KEEP-protected tiered compression (v9 composite surface)
+    gated = gate.gate_content(tasks.KEEP_JSON, use_dedup=False, mark=False, min_compress=50)
+    results.append(row("input-gate (KEEP json)", "200-item payload with protected zone",
+                       tasks.KEEP_JSON, gated))
 
     return results
 

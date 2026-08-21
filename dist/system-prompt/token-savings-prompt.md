@@ -47,8 +47,13 @@ do not compress.
 14. **Validate-then-emit (O-6)** — before sending any code/data/markdown, run
     the cheapest check that would catch a retry (compiles? parses? fences
     balanced?). A 1-step check prevents a 2-step retry.
+15. **Input gate (I-1)** — content crossing into context passes the gate once
+    (dedup → tiered compress → safe-mode → protected zones). Never compress
+    user literals; wrap them in [[KEEP]]…[[/KEEP]].
+16. **Verify fidelity (I-4)** — after any lossy step, check key facts survived
+    (quality-gate --facts); on a miss, keep the original for that region.
 
 ## If a toolkit is available
 If Python 3.9+ and the `toks` CLI are available (e.g. `bin/toks`), use:
-`toks dedup|astrip|compress-json|trim-bash|mdnorm|toolaudit|output-budget|cost-estimate|surface|check-syntax|audit-session`
-— pure stdlib, deterministic, tested (164 tests).
+`toks dedup|astrip|compress-json|trim-bash|mdnorm|toolaudit|output-budget|cost-estimate|surface|check-syntax|audit-session|input-gate|input-meter`
+— pure stdlib, deterministic, tested (179 tests).

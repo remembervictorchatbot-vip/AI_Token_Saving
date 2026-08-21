@@ -24,7 +24,7 @@ import json
 import os
 import sys
 
-from toks import dedup, compress, measure, checkpoint, astrip, safemode, hygiene, protect, mdnorm, toolaudit, output, cost, surface, check, audit  # noqa: E402
+from toks import dedup, compress, measure, checkpoint, astrip, safemode, hygiene, protect, mdnorm, toolaudit, output, cost, surface, check, audit, gate, input_meter  # noqa: E402
 from toks.demo import run_demo
 
 
@@ -67,6 +67,7 @@ def build_parser():
     qg = sub.add_parser("quality-gate")
     qg.add_argument("--before", required=True)
     qg.add_argument("--after", required=True)
+    qg.add_argument("--facts", default="", help="pipe-separated facts to verify, e.g. id:123|name:foo")
 
     cp = sub.add_parser("checkpoint")
     cp.add_argument("--emit", action="store_true")
@@ -123,6 +124,16 @@ def build_parser():
     au = sub.add_parser("audit-session")
     au.add_argument("--text", default="")
     au.add_argument("--file", default="")
+
+    ig = sub.add_parser("input-gate")
+    ig.add_argument("--text", default="")
+    ig.add_argument("--file", default="")
+    ig.add_argument("--no-dedup", action="store_true")
+    ig.add_argument("--min-compress", type=int, default=80)
+
+    im = sub.add_parser("input-meter")
+    im.add_argument("--text", default="")
+    im.add_argument("--file", default="")
 
     sub.add_parser("selftest")
     sub.add_parser("demo")
@@ -183,7 +194,8 @@ def handle_measure(args):
 
 
 def handle_quality_gate(args):
-    print(measure.quality_gate(args.before, args.after))
+    extra = [f for f in args.facts.split("|") if f] if args.facts else None
+    print(measure.quality_gate(args.before, args.after, extra_protected=extra))
 
 
 def handle_checkpoint(args):
@@ -270,6 +282,23 @@ def handle_check_syntax(args):
     print(msg)
 
 
+def handle_input_gate(args):
+    text = args.text
+    if not text and args.file:
+        with open(_resolve(args.file), "r", encoding="utf-8") as fh:
+            text = fh.read()
+    print(gate.gate_content(text, use_dedup=not args.no_dedup,
+                            min_compress=args.min_compress))
+
+
+def handle_input_meter(args):
+    text = args.text
+    if not text and args.file:
+        with open(_resolve(args.file), "r", encoding="utf-8") as fh:
+            text = fh.read()
+    print(input_meter.format_report(input_meter.meter(text)))
+
+
 def handle_audit_session(args):
     text = args.text
     if not text and args.file:
@@ -319,6 +348,8 @@ HANDLERS = {
     "surface": handle_surface,
     "check-syntax": handle_check_syntax,
     "audit-session": handle_audit_session,
+    "input-gate": handle_input_gate,
+    "input-meter": handle_input_meter,
     "selftest": handle_selftest,
     "demo": handle_demo,
 }

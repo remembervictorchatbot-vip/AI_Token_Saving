@@ -42,7 +42,7 @@ TOKS_UPSTREAM=https://api.deepseek.com/v1 python3 dist/deepseek-harness/toks_fil
 
 # 3. Optional — portable CLI on PATH (verify, then use directly):
 export PATH="$PWD/skills/token-savings/bin:$PATH"
-toks selftest        # 164 tests, all must pass
+toks selftest        # 179 tests, all must pass
 ```
 
 **Native one-command installs** (best on these platforms):
@@ -84,6 +84,9 @@ limits. The fix is a discipline, not a single trick:
 | Read-me-first (v8) | `toks surface` | one line per symbol with line numbers — py/json/md/conf |
 | Output validation (v8) | `toks check-syntax` | O-6 gate: catch retries before emitting |
 | Session self-audit (v8) | `toks audit-session` | flags re-reads, prose bloat, loops, bad JSON |
+| Automatic input gate (v9) | `toks input-gate` | context-ready content: dedup → compress → protect → fidelity marker (71.5%) |
+| Session input meter (v9) | `toks input-meter` | actual input cost + recoverable repeat waste |
+| Fidelity facts (v9) | `toks quality-gate --facts` | I-4: key facts survive lossy steps |
 
 **Before / after — output discipline (O-1):**
 
@@ -104,13 +107,14 @@ representative samples:
 |---|---|---|---|---|
 | dedup | config re-read (2nd read) | 1,059 chars | 18 | **98.3%** |
 | dedup --diff (v8) | config re-read after edit | 1,067 chars | 241 | **77.4%** |
+| input-gate (v9) | 200-item payload w/ protected zone | 7,585 chars | 2,160 | **71.5%** |
 | summarize-grep | 150 hits | 4,449 | 334 | **92.5%** |
 | astrip | ~150-line module | 6,816 | 1,420 | **79.2%** |
 | trim-bash | build log w/ ANSI | 3,519 | 877 | **75.1%** |
 | O-1 data-only | chat reply → table | 345 | 98 | **71.6%** |
 | compress-json | 500-item payload | 37,293 | 21,243 | **43.0%** |
 | mdnorm | 120-paragraph docs page | 14,118 | 10,109 | **28.4%** |
-| **Aggregate** | | **68,666** | **34,340** | **50.0%** |
+| **Aggregate** | | **76,251** | **36,500** | **52.1%** |
 
 _Honest scope: these are tool-level measurements. End-to-end savings on a live
 agent session also depend on the model following the behavioral rules — a
@@ -148,7 +152,7 @@ frontier model complies better than a small local one. No inflated claims._
 |---|---|---|
 | **Any harness w/ a model endpoint** (universal) | behavioral rules + context filter — always works | system-prompt bundle + `toks_filter.py` (see [Quick start](#quick-start--works-with-any-model-any-harness)) |
 | **DeepSeek-style harness** (DeepSeek API, LM Studio, Qwen Code, OpenCode) | dedicated adapter — context filter + prompt bundle | see [dist/deepseek-harness/README.md](dist/deepseek-harness/README.md) |
-| **WorkBuddy** | native · 164/164 tests · gated releases | `cp -R skills/* ~/.workbuddy/skills/` |
+| **WorkBuddy** | native · 179/179 tests · gated releases | `cp -R skills/* ~/.workbuddy/skills/` |
 | **Hermes Agent** | verified (installs, registers, enabled) | `cp -R dist/hermes/token-savings ~/.hermes/skills/` then `hermes skills list` |
 | **Codex / Claude Code / OpenCode-style** | behavioral rules port; needs skill conversion | copy `skills/token-savings`, Python 3.9+ on PATH |
 | Ollama / LM Studio (model servers) | no agent loop — condensed prompt applies | same system-prompt bundle |
@@ -188,7 +192,7 @@ rejected:
 ## FAQ 💡
 
 **Does it really save tokens?**
-Yes, measurably at the tool level — 50.0% aggregate on representative samples
+Yes, measurably at the tool level — 52.1% aggregate on representative samples
 (see [Measured impact](#measured-impact)). Agent-level savings scale with how
 well the model follows the rules. No magic numbers, everything is reproducible
 via `python bench/run_bench.py`.

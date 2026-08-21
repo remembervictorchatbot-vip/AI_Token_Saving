@@ -47,7 +47,7 @@ replies are written (output), and the learning loop survives (continuity).
 - **Safe-mode**: risk_level classifies unsafe | caution | safe. Secrets and
   stack traces = unsafe = 0% compression, pass through verbatim (mangling
   them manufactures hallucinations).
-- **Stable prefix (USE-0)**: system instructions / tool schemas / standing
+  rules stay byte-identical at the top; variable content goes at the end.
   rules stay byte-identical at the top; variable content goes at the end.
   Never rewrite the prefix (rewriting breaks prefix caching on any runtime).
 

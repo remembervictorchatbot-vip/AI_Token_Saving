@@ -67,6 +67,11 @@ CONFIG_REPEAT = "\n".join(
     [f"key_{i} = value_{i}" for i in range(60)]
 )  # read 3x in one session -> dedup applies on re-reads
 
+KEEP_JSON = (
+    '{"status": "ok", "debug": "trace-x", "literal": "[[KEEP]]token_abc_12345[[/KEEP]]", '
+    '"items": [' + ",".join('{"id": %d, "meta": null, "log": "x"}' % i for i in range(200)) + "]}"
+)  # JSON with a protected zone: compress_json alone would touch it; input-gate keeps [[KEEP]]
+
 CONFIG_REPEAT_DELTA = "\n".join(
     [f"key_{i} = value_{i}" for i in range(60)
      if i not in (15, 37)]
