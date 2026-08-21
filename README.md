@@ -6,6 +6,8 @@
 
 **little lovely planet** — quality-preserving token & credit savings for AI agents
 
+**Model-agnostic · harness-agnostic · pure stdlib Python 3.9+ · zero dependencies · zero telemetry**
+
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/python-3.9%20%7C%203.10%20%7C%203.11%20%7C%203.12%20%7C%203.13-blue.svg)](https://www.python.org/)
 [![CI](https://github.com/remembervictorchatbot-vip/AI_Token_Saving/actions/workflows/ci.yml/badge.svg)](https://github.com/remembervictorchatbot-vip/AI_Token_Saving/actions/workflows/ci.yml)
@@ -22,22 +24,35 @@ behavioral rules that work on any model and any harness.
 
 ---
 
-## Quick start ⚡
+## Quick start ⚡ — works with any model, any harness
+
+**Universal path — no install, works everywhere** (any harness with a system
+prompt and a model endpoint — WorkBuddy, Claude Code, Codex, OpenCode, Qwen
+Code, custom DeepSeek harnesses, AI Studio, local agents…):
 
 ```bash
-# 1. Install (WorkBuddy — user-level, applies to all communications)
-cp -R skills/* ~/.workbuddy/skills/
+# 1. Behavioral rules — paste dist/system-prompt/token-savings-prompt.md
+#    at the TOP of your system prompt (fluff-strip, budgets, dedup, continuity).
 
-# 2. Verify — 131 tests, must all pass (bin/toks works from any cwd)
-toks selftest
+# 2. Context filter — compress requests before they reach the model
+#    (stdlib Python 3.9+, OpenAI-compatible endpoint):
+TOKS_UPSTREAM=https://api.deepseek.com/v1 python3 dist/deepseek-harness/toks_filter.py
+#    then point your harness's base_url at http://127.0.0.1:8090/v1
+#    (LM Studio / llama.cpp: TOKS_UPSTREAM=http://localhost:1234/v1)
 
-# 3. Try it — the same file read twice; the second read collapses to a reference
-toks dedup --text "$(cat file.txt)"   # [FIRST TIME — keep full content]
-toks dedup --text "$(cat file.txt)"   # §ref:9f86d081...  (≈98% fewer tokens)
+# 3. Optional — portable CLI on PATH (verify, then use directly):
+export PATH="$PWD/skills/token-savings/bin:$PATH"
+toks selftest        # 131 tests, all must pass
 ```
 
-Also works on [Hermes Agent](dist/hermes/token-savings) and any harness that can
-run Python 3.9+ — see [Targets & install](#targets--install).
+**Native one-command installs** (best on these platforms):
+
+| Platform | Install |
+|---|---|
+| **WorkBuddy** | `cp -R skills/* ~/.workbuddy/skills/` |
+| **Hermes Agent** | `cp -R dist/hermes/token-savings ~/.hermes/skills/` then `hermes skills list` |
+| **Claude Code / Codex / OpenCode-style** | copy `skills/token-savings`, ensure Python 3.9+ on PATH (behavioral rules port) |
+| **Anything else** | universal path above — it always works |
 
 ## Why 🧠
 
@@ -125,11 +140,11 @@ frontier model complies better than a small local one. No inflated claims._
 
 | Target | Status | Install |
 |---|---|---|
+| **Any harness w/ a model endpoint** (universal) | behavioral rules + context filter — always works | system-prompt bundle + `toks_filter.py` (see [Quick start](#quick-start--works-with-any-model-any-harness)) |
+| **DeepSeek-style harness** (DeepSeek API, LM Studio, Qwen Code, OpenCode) | dedicated adapter — context filter + prompt bundle | see [dist/deepseek-harness/README.md](dist/deepseek-harness/README.md) |
 | **WorkBuddy** | native · 131/131 tests · gated releases | `cp -R skills/* ~/.workbuddy/skills/` |
 | **Hermes Agent** | verified (installs, registers, enabled) | `cp -R dist/hermes/token-savings ~/.hermes/skills/` then `hermes skills list` |
 | **Codex / Claude Code / OpenCode-style** | behavioral rules port; needs skill conversion | copy `skills/token-savings`, Python 3.9+ on PATH |
-| **Harness w/o skill loader** (custom DeepSeek harness, AI Studio, local agents) | system-prompt transplant + context filter | inject `dist/system-prompt/token-savings-prompt.md`; run `dist/deepseek-harness/toks_filter.py` in front of your model endpoint |
-| **DeepSeek-style harness** (OpenAI-compatible: DeepSeek API, LM Studio, Qwen Code, OpenCode) | dedicated adapter — context filter + prompt bundle | see [dist/deepseek-harness/README.md](dist/deepseek-harness/README.md) |
 | Ollama / LM Studio (model servers) | no agent loop — condensed prompt applies | same system-prompt bundle |
 
 The toolkit is location-independent: `bin/toks` resolves its own skill dir via
