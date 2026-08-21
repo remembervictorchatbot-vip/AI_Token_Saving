@@ -68,7 +68,7 @@ def trim_bash(output: str, max_lines: int = 40, collapse_repeats: int = 3) -> st
 
 
 def summarize_grep(results: str, top: int = 10) -> str:
-    lines = [l for l in results.splitlines() if l.strip()]
+    lines = [line for line in results.splitlines() if line.strip()]
     total = len(lines)
     if total <= top:
         return results

@@ -7,8 +7,11 @@ Honest scope: this measures the TOOLS, not an end-to-end agent session.
 Agent-level savings (rules actually being followed in WorkBuddy / Hermes /
 a DeepSeek harness) are a separate verification that needs each target runtime.
 
-Run: python3 run_bench.py   (resolves the toolkit via toks.boot — portable)
+Run:
+    python3 run_bench.py            # full report + writes REPORT.md
+    python3 run_bench.py --check    # compare against BASELINE.json, exit 1 on regression
 """
+import argparse
 import json
 import os
 import sys
@@ -46,9 +49,9 @@ def row(name, sample, before, after):
 def run():
     results = []
 
-    # 1. dedup on repeated file read (session: 3rd read returns a ref)
+    # 1. dedup on repeated file read (session: 2nd read returns a ref)
     dc = dedup.DedupCache()
-    first = dc.ref(tasks.CONFIG_REPEAT)          # None -> keep full
+    dc.ref(tasks.CONFIG_REPEAT)                   # prime cache (first read -> keep full)
     second = dc.ref(tasks.CONFIG_REPEAT)         # ref
     results.append({
         "surface": "dedup (file-hash)",
@@ -116,8 +119,61 @@ def render(results):
     return "\n".join(lines)
 
 
+def check_regression(results, baseline_path=None):
+    """Compare results against BASELINE.json. Returns (passed: bool, report: str)."""
+    if baseline_path is None:
+        baseline_path = os.path.join(HERE, "BASELINE.json")
+    with open(baseline_path, "r", encoding="utf-8") as fh:
+        baseline = json.load(fh)
+    threshold = baseline.get("threshold_pct", 5.0)
+    failures = []
+    lines = ["# Benchmark regression check", ""]
+    for r in results:
+        surface = r["surface"]
+        current = r["saved_pct"]
+        expected = baseline["surfaces"].get(surface)
+        if expected is None:
+            lines.append(f"- {surface}: {current}% (no baseline — skipped)")
+            continue
+        delta = round(current - expected, 1)
+        status = "OK" if delta >= -threshold else "FAIL"
+        lines.append(f"- {surface}: {current}% (baseline {expected}%, delta {delta:+.1f}pp) [{status}]")
+        if delta < -threshold:
+            failures.append(f"{surface}: {current}% < {expected}% -{threshold}pp threshold")
+    # Aggregate
+    total_b = sum(r["before_chars"] for r in results)
+    total_a = sum(r["after_chars"] for r in results)
+    agg = round(100.0 * (total_b - total_a) / total_b, 1) if total_b else 0.0
+    agg_expected = baseline.get("aggregate")
+    if agg_expected is not None:
+        delta = round(agg - agg_expected, 1)
+        status = "OK" if delta >= -threshold else "FAIL"
+        lines.append(f"- AGGREGATE: {agg}% (baseline {agg_expected}%, delta {delta:+.1f}pp) [{status}]")
+        if delta < -threshold:
+            failures.append(f"aggregate: {agg}% < {agg_expected}% -{threshold}pp")
+    lines.append("")
+    if failures:
+        lines.append("REGRESSION DETECTED:")
+        for f in failures:
+            lines.append(f"  - {f}")
+        return False, "\n".join(lines)
+    lines.append(f"All surfaces within +/-{threshold}pp of baseline. PASS.")
+    return True, "\n".join(lines)
+
+
 if __name__ == "__main__":
-    report = render(run())
+    parser = argparse.ArgumentParser(description="Token-savings benchmark")
+    parser.add_argument("--check", action="store_true",
+                        help="compare against BASELINE.json, exit 1 on regression")
+    args = parser.parse_args()
+
+    results = run()
+    if args.check:
+        passed, report = check_regression(results)
+        print(report)
+        sys.exit(0 if passed else 1)
+
+    report = render(results)
     print(report)
     with open(os.path.join(HERE, "REPORT.md"), "w", encoding="utf-8") as fh:
         fh.write(report + "\n")

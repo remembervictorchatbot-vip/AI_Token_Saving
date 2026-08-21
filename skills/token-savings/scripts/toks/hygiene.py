@@ -3,7 +3,6 @@
 Behavioral complement to compression: keeping the working surface small beats
 manual prompt compression. Flags oversized files and reminds on thread cadence.
 """
-import os
 
 MAX_LINES = 300
 FRESH_THREAD_MIN = 8

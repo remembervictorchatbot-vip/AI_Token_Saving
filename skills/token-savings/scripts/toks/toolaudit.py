@@ -21,7 +21,6 @@ Token estimate is provider-agnostic: chars/4 (matches the toolkit's fallback
 ratio), so the tool has zero external dependencies.
 """
 import json
-import re
 
 DEFAULT_THRESHOLD_PCT = 20.0      # a connector above this share is a review candidate
 DEFAULT_ABS_FLOOR = 5000          # or above this many estimated tokens/call
@@ -134,3 +133,19 @@ def format_report(result: dict) -> str:
         "and disable the unused ones in the host settings."
     )
     return "\n".join(lines)
+
+
+def sample_manifest() -> str:
+    """Return a small example manifest JSON string for demos and testing."""
+    return json.dumps({
+        "connectors": [
+            {"name": "kdocs", "tools": [
+                {"name": "wpp.create_presentation", "schema_chars": 1800},
+                {"name": "wpp.read_presentation", "schema_chars": 1500},
+                {"name": "sheet.create", "schema_chars": 1600},
+            ]},
+            {"name": "feishu", "tool_count": 60, "avg_schema_chars": 1200},
+            {"name": "notion", "tool_count": 12, "avg_schema_chars": 900},
+            {"name": "agent-mail", "tool_count": 8, "avg_schema_chars": 700},
+        ]
+    })

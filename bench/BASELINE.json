@@ -1,0 +1,14 @@
+{
+  "_comment": "Committed baseline for bench/run_bench.py --check regression gate. Generated 2026-08-21. Threshold: any surface dropping >5.0 percentage points fails CI.",
+  "threshold_pct": 5.0,
+  "surfaces": {
+    "dedup (file-hash)": 98.3,
+    "compress_json": 43.0,
+    "astrip": 79.2,
+    "trim_bash": 75.1,
+    "summarize_grep": 92.5,
+    "mdnorm": 28.4,
+    "O-1 data-only": 71.6
+  },
+  "aggregate": 49.6
+}
