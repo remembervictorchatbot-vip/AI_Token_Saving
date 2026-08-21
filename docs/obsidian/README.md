@@ -31,14 +31,14 @@ representative samples (see [[04 - Benchmark]]).
 - [[05 - Skills]] - the four skills and their delegation model
 - [[06 - Adapters]] - DeepSeek harness, Hermes, system-prompt, universal path
 - [[07 - Design Principles]] - synthesized from sqz / token-optimizer / prompt-optimizer
-- [[08 - Glossary]] - §ref:HASH§, [[KEEP]], USE-*, O-1..O-5, safemode, JIT
+- [[08 - Glossary]] - §ref:HASH§, KEEP zones, USE-*, O-1..O-5, safemode, JIT
 - [[09 - FAQ]] - common questions
 - [[10 - Changelog]] - release history
 - [[11 - Development]] - CI, tests, bundle build, contributing
 
 ## Conventions
 
-- [[wikilinks]] for cross-notes; every note is reachable from the [[MOC]].
+- Use double-bracket wikilinks for cross-notes; every note is reachable from the [[MOC]].
 - Tags: #token-savings #toks #crl #skills #docs #benchmark
 - **Source of truth stays in the repo** (README, skills/*/SKILL.md). This
   vault mirrors it for study; refresh it when those docs change.
