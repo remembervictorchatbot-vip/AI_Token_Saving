@@ -12,3 +12,7 @@ toks/.cache/
 # OS / editor
 .DS_Store
 *.swp
+
+# OpenWork local state (not for the repo)
+.opencode/
+RESUME.md
