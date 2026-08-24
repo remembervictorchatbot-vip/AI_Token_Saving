@@ -25,6 +25,7 @@ import os
 import sys
 
 from toks import dedup, compress, measure, checkpoint, astrip, safemode, hygiene, protect, mdnorm, toolaudit, output, cost, surface, check, audit, gate, input_meter, autopilot, doctor  # noqa: E402
+from toks import pd, route, isolate  # noqa: E402  (v11)
 from toks.demo import run_demo
 
 
@@ -147,6 +148,22 @@ def build_parser():
 
     sp = sub.add_parser("setup")
     sp.add_argument("--write-env", action="store_true")
+
+    # v11: progressive-disclosure / tier-routing / sub-agent isolation
+    pdp = sub.add_parser("pd")
+    pdp.add_argument("--text", default="")
+    pdp.add_argument("--file", default="")
+    pdp.add_argument("--budget", type=int, default=30000)
+
+    rp = sub.add_parser("route")
+    rp.add_argument("--task", required=True)
+    rp.add_argument("--base-cost", type=float, default=1.0)
+
+    ip = sub.add_parser("isolate")
+    ip.add_argument("--goal", required=True)
+    ip.add_argument("--context", default="")
+    ip.add_argument("--paths", default="")
+    ip.add_argument("--contract", default="")
 
     sub.add_parser("doctor")
 
@@ -353,6 +370,23 @@ def handle_audit_session(args):
         sys.exit(1)
 
 
+def handle_pd(args):
+    text = args.text
+    if not text and args.file:
+        text = _read_text(args.file)
+    print(pd.format_report(pd.audit_prompt(text, budget_tokens=args.budget)))
+
+
+def handle_route(args):
+    print(route.format_report(route.estimate(args.task, base_cost_per_task=args.base_cost)))
+
+
+def handle_isolate(args):
+    res = isolate.build_brief(args.goal, context=args.context,
+                              paths=args.paths, output_contract=args.contract)
+    print(isolate.format_report(res))
+
+
 def handle_selftest(args):
     import unittest
     scripts_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -397,6 +431,9 @@ HANDLERS = {
     "autopilot": handle_autopilot,
     "doctor": handle_doctor,
     "setup": handle_setup,
+    "pd": handle_pd,
+    "route": handle_route,
+    "isolate": handle_isolate,
     "selftest": handle_selftest,
     "demo": handle_demo,
 }
