@@ -26,6 +26,7 @@ import sys
 
 from toks import dedup, compress, measure, checkpoint, astrip, safemode, hygiene, protect, mdnorm, toolaudit, output, cost, surface, check, audit, gate, input_meter, autopilot, doctor  # noqa: E402
 from toks import pd, route, isolate  # noqa: E402  (v11)
+from toks import read_cache, memory_decay  # noqa: E402  (v11b)
 from toks.demo import run_demo
 
 
@@ -164,6 +165,17 @@ def build_parser():
     ip.add_argument("--context", default="")
     ip.add_argument("--paths", default="")
     ip.add_argument("--contract", default="")
+
+    # v11b: re-read suppression + hot-memory decay
+    rc = sub.add_parser("read-cache")
+    rc.add_argument("--path", required=True)
+    rc.add_argument("--record", action="store_true")
+    rc.add_argument("--reset", action="store_true")
+
+    md_ = sub.add_parser("memory-decay")
+    md_.add_argument("--file", required=True)
+    md_.add_argument("--max-chars", type=int, default=400)
+    md_.add_argument("--stale-days", type=int, default=30)
 
     sub.add_parser("doctor")
 
@@ -387,6 +399,24 @@ def handle_isolate(args):
     print(isolate.format_report(res))
 
 
+def handle_read_cache(args):
+    rc_ = read_cache.ReadCache()
+    if args.reset:
+        rc_.reset()
+        print("reset")
+        return
+    if args.record:
+        print("recorded:", read_cache.ReadCache.record(rc_, _resolve(args.path)))
+        return
+    print(read_cache.format_report(rc_.check(_resolve(args.path))))
+
+
+def handle_memory_decay(args):
+    text = _read_text(args.file)
+    print(memory_decay.format_report(memory_decay.audit_memory(
+        text, max_chars=args.max_chars, stale_days=args.stale_days)))
+
+
 def handle_selftest(args):
     import unittest
     scripts_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -434,6 +464,8 @@ HANDLERS = {
     "pd": handle_pd,
     "route": handle_route,
     "isolate": handle_isolate,
+    "read-cache": handle_read_cache,
+    "memory-decay": handle_memory_decay,
     "selftest": handle_selftest,
     "demo": handle_demo,
 }
