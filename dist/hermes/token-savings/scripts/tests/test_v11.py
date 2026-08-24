@@ -1,6 +1,5 @@
 """Tests for v11 commands: pd (progressive disclosure), route (tier routing),
 isolate (sub-agent context isolation)."""
-import os
 import unittest
 
 from toks import pd, route, isolate

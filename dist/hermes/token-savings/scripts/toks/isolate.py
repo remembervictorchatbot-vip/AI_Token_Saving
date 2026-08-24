@@ -48,7 +48,8 @@ def build_brief(goal: str, context: str = "", paths: str = "",
     if output_contract:
         brief_lines += ["", "Output contract:", output_contract]
     brief = "\n".join(brief_lines)
-    est = lambda s: max(1, len(s) // 4)
+    def est(s):
+        return max(1, len(s) // 4)
     return {
         "brief": brief,
         "warnings": warnings,

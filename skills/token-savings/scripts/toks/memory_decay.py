@@ -35,7 +35,6 @@ def parse_entries(text: str):
 
 def audit_memory(text: str, max_chars: int = 400, stale_days: int = 30) -> dict:
     import datetime
-    cutoff_years = 2  # conservative: any explicit date >2y old counts stale
     now = datetime.date.today()
     actions = []
     total = len(text)

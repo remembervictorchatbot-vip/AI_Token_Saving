@@ -51,16 +51,16 @@ def _classify(title: str, body: str) -> str:
     # Hard L1: security content never defers entirely.
     if SECURITY_RE.search(blob) and MANDATE_RE.search(blob):
         return "L1"
-    lines = [l for l in body.splitlines() if l.strip()]
+    lines = [ln for ln in body.splitlines() if ln.strip()]
     # Table with 4+ data rows -> reference material.
-    table_rows = sum(1 for l in lines if l.strip().startswith("|") and "---" not in l) - 1
+    table_rows = sum(1 for ln in lines if ln.strip().startswith("|") and "---" not in ln) - 1
     if table_rows >= 4:
         return "L2"
     # Historical narrative -> reference.
     if HISTORY_RE.search(blob):
         return "L2"
     # Full enumeration: 6+ bullet items under one section -> extract summary.
-    bullets = sum(1 for l in lines if re.match(r"\s*([-*]|\d+\.)\s", l))
+    bullets = sum(1 for ln in lines if re.match(r"\s*([-*]|\d+\.)\s", ln))
     if bullets >= 6 and len(lines) > 10:
         return "L2"
     # Long low-density prose (>40 lines, no mandate/security) -> reference.
@@ -71,14 +71,14 @@ def _classify(title: str, body: str) -> str:
 
 def audit_prompt(text: str, budget_tokens: int = 30000) -> dict:
     """Classify each section; return layer map + estimated savings."""
-    est = lambda s: max(1, len(s) // 4)
+    def est(s):
+        return max(1, len(s) // 4)
     total, l1_chars, l2 = est(text), 0, []
     for title, body in _sections(text):
         if _classify(title, body) == "L2":
             l2.append({"section": title, "chars": len(body)})
         else:
             l1_chars += est(body)
-    l2_chars = sum(s["chars"] for s in l2)
     kept = l1_chars + est("\n".join(
         "> pointer: see reference for: " + s["section"] for s in l2))
     saved_pct = round(100.0 * (total - kept) / total, 1) if total else 0.0
