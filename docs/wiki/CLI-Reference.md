@@ -6,7 +6,7 @@ anywhere.
 ## toks (general toolkit)
 
 ```bash
-toks selftest                 # FULL suite (currently 201 tests) - must stay GREEN
+toks selftest                 # FULL suite (currently 225 tests) - must stay GREEN
 toks demo                     # quick self-tests
 toks measure --text "..."     # est. tokens (chars/4) - diagnostic
 toks dedup --text "$(cat file.txt)"        # ref or [FIRST TIME]
@@ -34,6 +34,11 @@ toks input-gate --text "$(cat tool_output.txt)"   # I-1: context-ready content
 toks input-meter --file transcript.txt         # session input cost + recoverable waste
 toks output-gate --text "$REPLY" --task analysis   # I-5: O-1..O-6 before emit
 toks autopilot --file transcript.txt           # I-6: meter + audit + gate -> directives
+toks pd --file AGENTS.md                        # v11: progressive-disclosure layer audit (L1/L2 + savings)
+toks route --task "fix typo"                    # v11: model-tier preflight (mechanical/pattern/reasoning)
+toks isolate --goal "..." --paths "a.py,b.py"   # v11: leak-free sub-agent brief
+toks read-cache --path F --record               # v11: re-read suppression (HIT = reuse cached)
+toks memory-decay --file MEMORY.md              # v11: hot-memory stale/bloat audit
 toks doctor                                    # I-7: is auto-saving wired here?
 toks setup [--write-env]                       # one-time wiring: prints shell/endpoint block
 toks checkpoint --auto --text "$LAST"          # I-8: auto-extract open work

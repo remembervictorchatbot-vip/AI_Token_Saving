@@ -45,7 +45,7 @@ sync via 'python build_hermes_bundle.py --check'.
 
 ## WorkBuddy
 
-'cp -R skills/* ~/.workbuddy/skills/' - native, 201/201 tests, gated releases.
+'cp -R skills/* ~/.workbuddy/skills/' - native, 225/225 tests, gated releases.
 
 ## Others (Claude Code / Codex / OpenCode-style)
 

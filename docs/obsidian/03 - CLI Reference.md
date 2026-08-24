@@ -11,7 +11,7 @@ autodetect). Run from anywhere.
 ## toks (general toolkit)
 
 ```bash
-toks selftest                 # FULL suite (currently 201 tests) - must stay GREEN
+toks selftest                 # FULL suite (currently 225 tests) - must stay GREEN
 toks demo                     # quick self-tests
 toks measure --text "..."     # est. tokens (chars/4) - diagnostic
 toks dedup --text "$(cat file.txt)"        # ref or [FIRST TIME]
@@ -39,6 +39,11 @@ toks input-gate --text "$(cat tool_output.txt)"   # I-1: context-ready content
 toks input-meter --file transcript.txt         # session input cost + recoverable waste
 toks output-gate --text "$REPLY" --task analysis   # I-5: O-1..O-6 before emit
 toks autopilot --file transcript.txt           # I-6: meter + audit + gate -> directives
+toks pd --file AGENTS.md                        # v11 progressive-disclosure audit
+toks route --task "..."                         # v11 model-tier routing preflight
+toks isolate --goal "..." --paths "..."         # v11 sub-agent brief isolation
+toks read-cache --path F --record               # v11 re-read suppression cache
+toks memory-decay --file MEMORY.md              # v11 hot-memory decay audit
 toks doctor                                    # I-7: is auto-saving wired here?
 toks setup [--write-env]                       # one-time wiring: prints shell/endpoint block
 toks checkpoint --auto --text "$LAST"          # I-8: auto-extract open work

@@ -10,7 +10,7 @@
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/python-3.9%20%7C%203.10%20%7C%203.11%20%7C%203.12%20%7C%203.13-blue.svg)](https://www.python.org/)
-[![Tests: 201](https://img.shields.io/badge/tests-201-green.svg)](skills/token-savings/scripts/tests)
+[![Tests: 225](https://img.shields.io/badge/tests-225-green.svg)](skills/token-savings/scripts/tests)
 [![CI](https://github.com/remembervictorchatbot-vip/AI_Token_Saving/actions/workflows/ci.yml/badge.svg)](https://github.com/remembervictorchatbot-vip/AI_Token_Saving/actions/workflows/ci.yml)
 [![CodeQL](https://github.com/remembervictorchatbot-vip/AI_Token_Saving/actions/workflows/codeql.yml/badge.svg)](https://github.com/remembervictorchatbot-vip/AI_Token_Saving/actions/workflows/codeql.yml)
 [![Dependencies: zero](https://img.shields.io/badge/dependencies-zero-orange.svg)](skills/token-savings/scripts/toks)
@@ -46,7 +46,7 @@ TOKS_UPSTREAM=https://api.deepseek.com/v1 python3 dist/deepseek-harness/toks_fil
 #    (LM Studio / llama.cpp: TOKS_UPSTREAM=http://localhost:1234/v1)
 
 # 4. Self-test:
-toks selftest        # 201 tests, all must pass
+toks selftest        # 225 tests, all must pass
 ```
 
 **Native one-command installs** (best on these platforms):
@@ -70,7 +70,7 @@ limits. The fix is a discipline with **three layers**, not a single trick:
 - **Flow** — nothing re-derived, nothing repeated (continuity, hygiene, loop detection)
 - **Quality** — compressed never means lost: `[[KEEP]]` zones, safe-mode, and fact checks are mechanical guarantees
 
-## What it does ✨ (28 CLI commands)
+## What it does ✨ (33 CLI commands)
 
 | Surface | Tool | Effect |
 |---|---|---|
@@ -97,6 +97,11 @@ limits. The fix is a discipline with **three layers**, not a single trick:
 | Fidelity facts (v9) | `toks quality-gate --facts` | key facts survive lossy steps |
 | Session continuity | `RESUME.md` | checkpoint survives context loss, never re-derives |
 | Auto-checkpoint (v10) | `toks checkpoint --auto` | extracts open work heuristically — one call |
+| **Prompt layer audit (v11)** | `toks pd` | progressive-disclosure: Layer1/Layer2 sections, extraction plan, ≤30k budget |
+| **Tier routing (v11)** | `toks route` | mechanical/pattern/reasoning preflight + cost delta vs uniform top tier (95% on mechanical) |
+| Sub-agent isolation (v11) | `toks isolate` | leak-free child briefs; flags history-leaks & >2k state dumps |
+| **Re-read suppression (v11)** | `toks read-cache` | mtime+hash HIT → skip re-read, reuse cached ref |
+| **Memory decay (v11)** | `toks memory-decay` | hot-memory audit: demote done/stale, compress bloat — cuts every-turn context |
 
 **Before / after — output discipline (O-1):**
 
@@ -172,7 +177,7 @@ inflated claims._
 |---|---|---|
 | **Any harness w/ a model endpoint** (universal) | behavioral rules + context filter — always works | `toks setup` + system-prompt bundle + `toks_filter.py` (see [Quick start](#quick-start--auto-start-for-any-model-any-harness)) |
 | **DeepSeek-style harness** (DeepSeek API, LM Studio, Qwen Code, OpenCode) | dedicated adapter — context filter + prompt bundle | see [dist/deepseek-harness/README.md](dist/deepseek-harness/README.md) |
-| **WorkBuddy** | native · 201/201 tests · gated releases | `cp -R skills/* ~/.workbuddy/skills/` |
+| **WorkBuddy** | native · 225/225 tests · gated releases | `cp -R skills/* ~/.workbuddy/skills/` |
 | **Hermes Agent** | verified (installs, registers, enabled) | `cp -R dist/hermes/token-savings ~/.hermes/skills/` then `hermes skills list` |
 | **Codex / Claude Code / OpenCode-style** | behavioral rules port; needs skill conversion | copy `skills/token-savings`, Python 3.9+ on PATH |
 | Ollama / LM Studio (model servers) | no agent loop — condensed prompt applies | same system-prompt bundle |
@@ -238,7 +243,7 @@ API/serving layer this project deliberately doesn't control. This toolkit achiev
 the same discipline with a pure-stdlib, portable, testable core.
 
 **How do I know the install works?**
-`toks selftest` runs 201 tests and must stay GREEN (CI enforces this on Python
+`toks selftest` runs 225 tests and must stay GREEN (CI enforces this on Python
 3.9–3.13). `toks doctor` checks python/toolkit/filter/PATH and prints the exact
 fix for each warning.
 

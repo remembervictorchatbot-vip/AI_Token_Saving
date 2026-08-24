@@ -16,3 +16,7 @@ toks/.cache/
 # OpenWork local state (not for the repo)
 .opencode/
 RESUME.md
+
+# Local runtime state (v11)
+.toks-readcache.json
+.toks.env

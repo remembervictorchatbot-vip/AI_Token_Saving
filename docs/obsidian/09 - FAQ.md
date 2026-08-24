@@ -30,7 +30,7 @@ the deterministic bench. The project's honesty policy: claimed vs measured
 is always stated.
 
 **How do I know the install works?**
-'toks selftest' runs 201 tests and must stay GREEN (CI enforces this on
+'toks selftest' runs 225 tests and must stay GREEN (CI enforces this on
 Python 3.9-3.13). Hermes: 'hermes skills list' after install.
 
 **What about the context filter?**
