@@ -64,10 +64,11 @@ def _from_hermes():
         sm = re.search(r"^  {}:\n((?:    .*\n?)+)".format(re.escape(n)), block, re.M)
         cmd = None
         if sm:
-            cm = re.search(r"^\s+command:\s*(\S+)", sm.group(1), re.M)
-            args = re.findall(r"^\s+-\s+(\S+)", sm.group(1), re.M)
+            cm = re.search(r"^\s+command:\s*(.+)$", sm.group(1), re.M)
+            args = re.findall(r"^\s+-\s+(.+)$", sm.group(1), re.M)
             if cm:
-                cmd = [cm.group(1)] + args[:4]
+                argv = [cm.group(1).strip().strip("'\"")] + [a.strip().strip("'\"") for a in args[:4]]
+                cmd = argv
         out.append({"name": n, "_cmd": cmd})
     return out
 

@@ -1,0 +1,25 @@
+{
+  "hermes": {
+    "mcp_servers": {
+      "toks": {
+        "command": "python3",
+        "args": [
+          "<REPO>/dist/mcp/toks_mcp_server.py",
+          "--scripts-dir",
+          "<REPO>/skills/token-savings/scripts"
+        ],
+        "timeout": 60,
+        "connect_timeout": 30,
+        "enabled": true
+      }
+    }
+  },
+  "claude_desktop": {
+    "mcpServers": {
+      "toks": {
+        "command": "python3",
+        "args": ["<REPO>/dist/mcp/toks_mcp_server.py"]
+      }
+    }
+  }
+}

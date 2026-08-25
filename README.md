@@ -55,6 +55,8 @@ toks selftest        # 276 tests, all must pass
 |---|---|
 | **WorkBuddy** | `cp -R skills/* ~/.workbuddy/skills/` (skill auto-loads, applies to every message) |
 | **Hermes Agent** | `cp -R dist/hermes/token-savings ~/.hermes/skills/` then `hermes skills list` |
+| **Any MCP host** | register `dist/mcp/toks_mcp_server.py` (see [dist/mcp/README.md](dist/mcp/README.md)) — 5 tools, ~127 tok |
+
 | **Claude Code / Codex / OpenCode-style** | copy `skills/token-savings`, Python 3.9+ on PATH + the system-prompt bundle |
 | **Anything else** | `toks setup` + the system-prompt bundle — always works |
 
@@ -124,6 +126,7 @@ limits. The fix is a discipline with **three layers**, not a single trick:
 | **Skills management (v12b)** | `toks skills-audit` / `skills-index` | near-dup/vague/oversized/stale audit + Layer-1 discovery index with BM25 search |
 | **One-command full-auto (v13)** | `toks auto` | doctor + live discovery + toolaudit + skills-audit → prioritized directives — the whole discipline in one invocation |
 | **Reversible compression (v14)** | `toks retrieve <hash>` | CCR: verbatim originals cached on every compress (`[ccr:hash]` markers); lossy-but-recoverable, never destructive |
+| **MCP adapter (v15)** | `dist/mcp/toks_mcp_server.py` | 5-tool stdio MCP server (~127 tok) — any MCP host gets the discipline without shell access ([README](dist/mcp/README.md)) |
 
 **Before / after — output discipline (O-1):**
 
