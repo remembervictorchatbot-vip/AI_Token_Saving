@@ -31,6 +31,7 @@ from toks import auto  # noqa: E402  (v11c smart auto-compress)
 from toks import toolsearch  # noqa: E402  (v11d tool-search surface)
 from toks import discover  # noqa: E402  (v12 live surface discovery)
 from toks import skills_mgmt  # noqa: E402  (v12b skills management)
+from toks import full_auto  # noqa: E402  (v13 one-command auto sweep)
 from toks.demo import run_demo
 
 
@@ -204,6 +205,11 @@ def build_parser():
     si = sub.add_parser("skills-index")
     si.add_argument("--dir", default="")
     si.add_argument("--query", default="")
+
+    fa = sub.add_parser("auto")
+    fa.add_argument("--skills-dir", default="")
+    fa.add_argument("--no-live", action="store_true",
+                    help="skip live MCP handshakes (estimates only, faster)")
 
     sub.add_parser("doctor")
 
@@ -515,6 +521,11 @@ def handle_skills_index(args):
     print(skills_mgmt.build_index(skills))
 
 
+def handle_auto(args):
+    res = full_auto.auto(skills_dir=args.skills_dir or "")
+    print(full_auto.format_report(res))
+
+
 def handle_selftest(args):
     import unittest
     scripts_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -569,6 +580,7 @@ HANDLERS = {
     "discover": handle_discover,
     "skills-audit": handle_skills_audit,
     "skills-index": handle_skills_index,
+    "auto": handle_auto,
     "selftest": handle_selftest,
     "demo": handle_demo,
 }
