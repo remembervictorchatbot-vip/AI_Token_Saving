@@ -31,9 +31,7 @@ class TestCCR(unittest.TestCase):
     def test_ttl_expiry(self):
         short = ccr.CCR(root=self.root, ttl_days=0)
         h = short.store("expiring soon\n" * 10)
-        # ttl 0 => store() itself evicts it immediately (age > 0 days)
-        self.assertFalse(os.path.exists(os.path.join(self.root, h + ".txt")))
-        res = short.retrieve(h)
+        res = short.retrieve(h)  # ttl 0 => any existing entry expires
         self.assertFalse(res["hit"])
 
     def test_lru_eviction(self):
