@@ -17,17 +17,26 @@ Pattern source: memory-architecture skill (hot-cache cap + demotion rules).
 """
 import re
 
-DONE_RE = re.compile(r"\b(done|completed|fixed|resolved|shipped|merged|closed)\b", re.I)
+DONE_RE = re.compile(
+    r"^\s*\*{0,2}(done|completed|fixed|resolved|shipped|merged|closed)\b[:\s*]"
+    r"|\b(task|issue|bug|pr|job) (done|completed|closed|merged)\b", re.I | re.M)
+LESSON_RE = re.compile(
+    r"\b(fixed \d+|repro'd|repro\b|lesson|learned|pitfall|gotcha|never "
+    r"|always |BUG:|NOTE:)\b", re.I)
 DATE_RE = re.compile(r"\b(20\d{2}[-/]\d{1,2}[-/]\d{1,2}|Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\b")
 TRANSIENT_RE = re.compile(r"\b(todo|tbd|wip|next step|in progress)\b", re.I)
 
 
 def parse_entries(text: str):
-    """Split into entries: '## heading' sections, else paragraph blocks."""
+    # Split into entries: '## heading' sections, '§'-delimited blocks (Hermes
+    # MEMORY.md format), else paragraph blocks.
     if re.search(r"^##\s", text, re.M):
         parts = re.split(r"^(?=##\s)", text, flags=re.M)
         return [(p.splitlines()[0].lstrip("# ").strip() or "(untitled)",
                  p) for p in parts if p.strip()]
+    if "\n§\n" in text or text.startswith("§\n"):
+        blocks = [b.strip() for b in text.split("\n§\n") if b.strip()]
+        return [(b.replace("\n", " ")[:40], b) for b in blocks]
     paras = re.split(r"\n\s*\n", text)
     return [((p.strip().splitlines()[0][:40] if p.strip() else "(blank)"), p)
             for p in paras if p.strip()]
@@ -52,7 +61,8 @@ def audit_memory(text: str, max_chars: int = 400, stale_days: int = 30) -> dict:
                         break
                 except ValueError:
                     continue
-        if DONE_RE.search(body) and not TRANSIENT_RE.search(body):
+        if DONE_RE.search(body) and not TRANSIENT_RE.search(body) \
+                and not LESSON_RE.search(body):
             actions.append({"entry": title, "action": "DEMOTE", "chars": chars,
                             "why": "completed marker"})
         elif old_date and chars < max_chars:

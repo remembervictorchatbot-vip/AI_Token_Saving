@@ -40,8 +40,29 @@ class TestReadCache(unittest.TestCase):
 
 class TestMemoryDecay(unittest.TestCase):
     def test_completed_entry_demoted(self):
-        res = memory_decay.audit_memory("## Old task\nFixed the login bug. Done.\n")
+        res = memory_decay.audit_memory("## Old task\nDone: shipped the parser fix.\n")
         self.assertEqual(res["entries"][0]["action"], "DEMOTE")
+
+    def test_lesson_with_fixed_word_not_demoted(self):
+        # regression: "fixed 3 jobs" inside a lesson must NOT read as completed
+        text = ("## Cron drift\nJobs fail when config changes. "
+                "Fix: edit provider (fixed 3 jobs Aug 2026). Lesson learned.\n")
+        res = memory_decay.audit_memory(text)
+        self.assertNotEqual(res["entries"][0]["action"], "DEMOTE")
+
+    def test_section_format_parses_multiple_entries(self):
+        text = "## A\nDone and shipped.\n\n## B\nKeep: active rule.\n"
+        res = memory_decay.audit_memory(text)
+        self.assertEqual(len(res["entries"]), 2)
+
+    def test_paragraph_delimited_format(self):
+        # Hermes MEMORY.md §-format: each § block is its own entry
+        text = "Entry one about caching.\n§\nDone: migration completed.\n§\nEntry three active rule.\n"
+        entries = memory_decay.parse_entries(text)
+        self.assertEqual(len(entries), 3)
+        res = memory_decay.audit_memory(text)
+        actions = [a["action"] for a in res["entries"]]
+        self.assertEqual(actions, ["KEEP", "DEMOTE", "KEEP"])
 
     def test_todo_kept(self):
         res = memory_decay.audit_memory("## Current work\nTODO: refactor parser (in progress)\n")
