@@ -10,7 +10,7 @@ def make_skill(root, dirname, name, desc, version="1.0.0", lines=20):
     d = os.path.join(root, dirname)
     os.makedirs(d, exist_ok=True)
     body = "\n".join("instruction line {}".format(i) for i in range(lines))
-    with open(os.path.join(d, "SKILL.md"), "w") as fh:
+    with open(os.path.join(d, "SKILL.md"), "w", encoding="utf-8") as fh:
         fh.write("---\nname: {}\nversion: {}\ndescription: \"{}\"\n---\n\n{}\n".format(
             name, version, desc, body))
 
