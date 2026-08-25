@@ -536,7 +536,14 @@ def handle_auto(args):
 def handle_retrieve(args):
     cache = ccr.CCR(root=args.root) if args.root else ccr.CCR()
     res = cache.retrieve(args.hash)
-    print(ccr.format_report(res, args.hash))
+    if res["hit"]:
+        # verbatim original to stdout — full content, no truncation (CCR contract)
+        sys.stdout.write(res["text"])
+        print("\n[ccr HIT {} {} chars, {}d old]".format(
+            args.hash, res["chars"], res["age_days"]), file=sys.stderr)
+    else:
+        print(ccr.format_report(res, args.hash))
+        sys.exit(1)
 
 
 def handle_ccr_stats(args):
