@@ -74,6 +74,15 @@ def gate_content(text: str, use_dedup: bool = True, min_compress: int = MIN_COMP
     out = protect.compress_protected(text, _pick_compressor(text))
     if len(out) >= len(text):
         return text
+    # CCR (v14): cache the verbatim original so compression is reversible.
+    try:
+        from toks import ccr as _ccr
+        _h = _ccr.CCR().store(text, meta="input-gate tier={}".format(_tier(text)))
+        out = "[ccr:{}]\n".format(_h) + out
+        if len(out) >= len(text):
+            return text
+    except Exception:
+        pass  # CCR is best-effort; never block the gate
     if not mark:
         return out
     saved = round(100.0 * (len(text) - len(out)) / len(text))

@@ -1,7 +1,7 @@
 ---
 name: token-savings
 description: "Quality-preserving token & credit saving for every message: dedup repeated file reads, compress tool output (bash/JSON/code), markdown-normalize web/RAG content, audit connector tool-surface cost, budget output length, stabilize the prompt prefix. Load when a session is long, context-heavy, or cost-sensitive — or whenever you re-read files, paste large tool output, or fetch web pages."
-version: 7.6.0
+version: 7.8.0
 author: remembervictorchatbot
 license: MIT
 platforms: [linux, macos, windows]
@@ -122,6 +122,21 @@ Decision rules from merged token skills — mechanisms live in the `toks` CLI:
   So yes: install skill → `toks setup` + `discover --live` + system-prompt
   bundle = tools management wired with exact numbers, no manual manifests.
 
+## One-command full-auto (v13): `toks auto`
+The whole discipline in one invocation — doctor wiring + `discover --live`
+(exact MCP surfaces) + toolaudit cost + skills-audit (dupes/oversized/stale)
+→ prioritized NEXT-ACTION DIRECTIVES. Recommend-only. Run weekly or let the
+agent run it when a session starts feeling heavy. `--no-live` skips
+handshakes for speed.
+
+## Reversible compression (v14): `toks retrieve <hash>`
+CCR pattern (Headroom's best idea, native): whenever the gate/auto-compress
+shrinks content, the verbatim ORIGINAL is cached in ~/.toks/ccr/ keyed by
+content hash, and the output carries a `[ccr:<hash>]` marker. Lost a detail?
+`toks retrieve d4d79ab1...` returns it verbatim. LRU 200 entries / 50 MB /
+30-day TTL, self-evicting, outside the skill dir (never committed).
+Compression is lossy-but-RECOVERABLE, never destructive.
+
 ## Verify
 - `hermes skills list` shows token-savings.
-- `toks selftest` → ALL PASS (254 tests). If a test fails, the install is broken.
+- `toks selftest` → ALL PASS (276 tests). If a test fails, the install is broken.

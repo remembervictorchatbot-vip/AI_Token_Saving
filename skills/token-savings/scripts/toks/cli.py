@@ -32,6 +32,7 @@ from toks import toolsearch  # noqa: E402  (v11d tool-search surface)
 from toks import discover  # noqa: E402  (v12 live surface discovery)
 from toks import skills_mgmt  # noqa: E402  (v12b skills management)
 from toks import full_auto  # noqa: E402  (v13 one-command auto sweep)
+from toks import ccr  # noqa: E402  (v14 reversible compression cache)
 from toks.demo import run_demo
 
 
@@ -210,6 +211,12 @@ def build_parser():
     fa.add_argument("--skills-dir", default="")
     fa.add_argument("--no-live", action="store_true",
                     help="skip live MCP handshakes (estimates only, faster)")
+
+    rt = sub.add_parser("retrieve")
+    rt.add_argument("hash")
+    rt.add_argument("--root", default="")
+
+    cs = sub.add_parser("ccr-stats")
 
     sub.add_parser("doctor")
 
@@ -526,6 +533,18 @@ def handle_auto(args):
     print(full_auto.format_report(res))
 
 
+def handle_retrieve(args):
+    cache = ccr.CCR(root=args.root) if args.root else ccr.CCR()
+    res = cache.retrieve(args.hash)
+    print(ccr.format_report(res, args.hash))
+
+
+def handle_ccr_stats(args):
+    st = ccr.CCR().stats()
+    print("ccr cache: {} entries, {:,} bytes (~{} tok)".format(
+        st["entries"], st["bytes"], st["bytes"] // 4))
+
+
 def handle_selftest(args):
     import unittest
     scripts_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -581,6 +600,8 @@ HANDLERS = {
     "skills-audit": handle_skills_audit,
     "skills-index": handle_skills_index,
     "auto": handle_auto,
+    "retrieve": handle_retrieve,
+    "ccr-stats": handle_ccr_stats,
     "selftest": handle_selftest,
     "demo": handle_demo,
 }
