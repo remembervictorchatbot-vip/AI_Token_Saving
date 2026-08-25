@@ -53,6 +53,18 @@ def run_checks() -> list:
     checks.append({"check": "toks on PATH", "status": "ok" if onpath else "warn",
                    "detail": onpath or "not on PATH",
                    "fix": "" if onpath else "add skills/token-savings/bin to PATH"})
+    # platform installs (v15): hermes skill, opencode skill, mcp registration
+    home = os.path.expanduser("~")
+    hermes_skill = os.path.join(home, ".hermes", "skills", "token-savings")
+    checks.append({"check": "hermes skill", "status": "ok" if os.path.isdir(hermes_skill) else "warn",
+                   "detail": hermes_skill if os.path.isdir(hermes_skill) else "not installed",
+                   "fix": "" if os.path.isdir(hermes_skill) else
+                   "cp -R dist/hermes/token-savings ~/.hermes/skills/"})
+    opencode_skill = os.path.join(home, ".opencode", "skills", "token-savings")
+    checks.append({"check": "opencode skill", "status": "ok" if os.path.isdir(opencode_skill) else "warn",
+                   "detail": opencode_skill if os.path.isdir(opencode_skill) else "not installed (optional)",
+                   "fix": "" if os.path.isdir(opencode_skill) else
+                   "cp -R skills/token-savings ~/.opencode/skills/ (optional)"})
     return checks
 
 

@@ -43,6 +43,20 @@ dependency; pure stdlib JSON-RPC over stdio, protocol `2024-11-05`
 Verify from the repo root: `toks discover --live` → toks appears with
 `LIVE 5 tools`.
 
+## Codex / OpenCode / OpenWork
+
+These hosts consume skills + CLI rather than MCP. The MCP server still works
+alongside them — register it in the host's `mcp.json` with the same shape as
+Claude Desktop above. The skill copy in `.opencode/skills/` stays the
+primary instruction layer there.
+
+## WorkBuddy
+
+`cp -R skills/* ~/.workbuddy/skills/` installs everything; `bin/toks`
+resolves its own dir via `$TOKS_SKILL_DIR` → `$HERMES_SKILL_DIR` → autodetect.
+The MCP server is optional (WorkBuddy has shell access and calls `toks`
+directly).
+
 ## Test
 
 ```bash
