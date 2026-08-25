@@ -30,6 +30,7 @@ from toks import read_cache, memory_decay  # noqa: E402  (v11b)
 from toks import auto  # noqa: E402  (v11c smart auto-compress)
 from toks import toolsearch  # noqa: E402  (v11d tool-search surface)
 from toks import discover  # noqa: E402  (v12 live surface discovery)
+from toks import skills_mgmt  # noqa: E402  (v12b skills management)
 from toks.demo import run_demo
 
 
@@ -197,6 +198,12 @@ def build_parser():
     dv.add_argument("--live", action="store_true",
                     help="real MCP handshake (initialize + tools/list) per server")
     dv.add_argument("--timeout", type=int, default=20)
+
+    sk = sub.add_parser("skills-audit")
+    sk.add_argument("--dir", default="")
+    si = sub.add_parser("skills-index")
+    si.add_argument("--dir", default="")
+    si.add_argument("--query", default="")
 
     sub.add_parser("doctor")
 
@@ -475,6 +482,39 @@ def handle_discover(args):
     print(discover.format_report(m))
 
 
+def _skills_dir(args):
+    d = args.dir or os.environ.get("HERMES_SKILLS_DIR") \
+        or os.path.expanduser("~/.hermes/skills")
+    return d if os.path.isdir(d) else None
+
+
+def handle_skills_audit(args):
+    d = _skills_dir(args)
+    if not d:
+        print("toks: skills dir not found (pass --dir)", file=sys.stderr)
+        sys.exit(2)
+    skills = skills_mgmt.scan_skills(d)
+    issues = skills_mgmt.find_issues(skills)
+    print(skills_mgmt.format_report(d, skills, issues))
+    for i in issues[:15]:
+        print("  ! [{}] {}: {}".format(i["type"], i["skill"], i["detail"]))
+    if len(issues) > 15:
+        print("  … {} more".format(len(issues) - 15))
+
+
+def handle_skills_index(args):
+    d = _skills_dir(args)
+    if not d:
+        print("toks: skills dir not found (pass --dir)", file=sys.stderr)
+        sys.exit(2)
+    skills = skills_mgmt.scan_skills(d)
+    if args.query:
+        for name in skills_mgmt.search_index(skills, args.query):
+            print(name)
+        return
+    print(skills_mgmt.build_index(skills))
+
+
 def handle_selftest(args):
     import unittest
     scripts_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -527,6 +567,8 @@ HANDLERS = {
     "auto-compress": handle_auto_compress,
     "tool-search": handle_tool_search,
     "discover": handle_discover,
+    "skills-audit": handle_skills_audit,
+    "skills-index": handle_skills_index,
     "selftest": handle_selftest,
     "demo": handle_demo,
 }
