@@ -1,7 +1,7 @@
 ---
 name: token-savings
 description: "Quality-preserving token & credit saving for every message: dedup repeated file reads, compress tool output (bash/JSON/code), markdown-normalize web/RAG content, audit connector tool-surface cost, budget output length, stabilize the prompt prefix. Load when a session is long, context-heavy, or cost-sensitive — or whenever you re-read files, paste large tool output, or fetch web pages."
-version: 7.5.0
+version: 7.6.0
 author: remembervictorchatbot
 license: MIT
 platforms: [linux, macos, windows]
@@ -84,6 +84,35 @@ ${HERMES_SKILL_DIR}/bin/toks doctor                                         # I-
 ```
 
 Requires: Python 3.9+ on PATH. No third-party dependencies.
+
+## Pattern reference (absorbed skills, v7.6 consolidation)
+
+Decision rules from merged token skills — mechanisms live in the `toks` CLI:
+
+- **Model-tier routing** (absorbed `software-development/model-tier-routing`):
+  route each task to the lowest sufficient tier before dispatch.
+  Tier 1 mechanical (format/rename/convert/regex/lint, single-file) →
+  cheap model. Tier 2 pattern-matching (code-from-spec, bugfix, tests,
+  docs) → standard. Tier 3 reasoning (architecture, security analysis,
+  novel debugging, cross-module refactor) → frontier. Preflight:
+  `toks route --task "..."`. Cost delta vs uniform-top: ~95% on mechanical.
+
+- **Progressive disclosure** (absorbed
+  `software-development/progressive-disclosure-pattern`): keep base prompt
+  Layer 1 only — mandates/security/operational rules stay inline; history,
+  tables ≥4 rows, enumerations ≥6 bullets, >40-line prose go to reference
+  files with a pointer that states rule + trigger + exact path. Security
+  content NEVER defers entirely. Target ≤30k tokens. Audit:
+  `toks pd --file AGENTS.md`.
+
+- **Sub-agent isolation** (absorbed archived multi-agent-token-optimization):
+  children get zero parent history — goal + context + paths + output
+  contract only; state updates as deltas. Check: `toks isolate --goal ...`.
+
+- **Re-read suppression / hot-memory decay**: `toks read-cache` (HIT =
+  reuse cached ref) and `toks memory-decay --file MEMORY.md` (demote done/
+  stale, compress bloat) — the decayed file loads every turn, so audit it
+  regularly.
 
 ## Verify
 - `hermes skills list` shows token-savings.
