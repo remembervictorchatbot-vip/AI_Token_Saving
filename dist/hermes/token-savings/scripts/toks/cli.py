@@ -29,6 +29,7 @@ from toks import pd, route, isolate  # noqa: E402  (v11)
 from toks import read_cache, memory_decay  # noqa: E402  (v11b)
 from toks import auto  # noqa: E402  (v11c smart auto-compress)
 from toks import toolsearch  # noqa: E402  (v11d tool-search surface)
+from toks import discover  # noqa: E402  (v12 live surface discovery)
 from toks.demo import run_demo
 
 
@@ -191,6 +192,8 @@ def build_parser():
     ts.add_argument("--query", default="")
     ts.add_argument("--keep", default="")
     ts.add_argument("--max-upfront", type=int, default=5)
+
+    sub.add_parser("discover")
 
     sub.add_parser("doctor")
 
@@ -464,6 +467,11 @@ def handle_tool_search(args):
     print(toolsearch.build_index(raw))
 
 
+def handle_discover(args):
+    m = discover.discover()
+    print(discover.format_report(m))
+
+
 def handle_selftest(args):
     import unittest
     scripts_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -515,6 +523,7 @@ HANDLERS = {
     "memory-decay": handle_memory_decay,
     "auto-compress": handle_auto_compress,
     "tool-search": handle_tool_search,
+    "discover": handle_discover,
     "selftest": handle_selftest,
     "demo": handle_demo,
 }
