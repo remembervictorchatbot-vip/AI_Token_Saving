@@ -20,7 +20,7 @@ One sentence describing the change.
 Fixes #____
 
 ## Testing
-- [ ] `toks selftest` passes (201 tests)
+- [ ] `toks selftest` passes (276 tests)
 - [ ] `toks demo` passes
 - [ ] `python bench/run_bench.py` succeeds
 - [ ] CI green (if applicable)

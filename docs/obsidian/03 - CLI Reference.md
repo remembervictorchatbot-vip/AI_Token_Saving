@@ -11,7 +11,7 @@ autodetect). Run from anywhere.
 ## toks (general toolkit)
 
 ```bash
-toks selftest                 # FULL suite (currently 225 tests) - must stay GREEN
+toks selftest                 # FULL suite (currently 276 tests) - must stay GREEN
 toks demo                     # quick self-tests
 toks measure --text "..."     # est. tokens (chars/4) - diagnostic
 toks dedup --text "$(cat file.txt)"        # ref or [FIRST TIME]

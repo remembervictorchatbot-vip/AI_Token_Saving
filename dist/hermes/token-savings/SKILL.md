@@ -87,4 +87,4 @@ Requires: Python 3.9+ on PATH. No third-party dependencies.
 
 ## Verify
 - `hermes skills list` shows token-savings.
-- `toks selftest` → ALL PASS (225 tests). If a test fails, the install is broken.
+- `toks selftest` → ALL PASS (276 tests). If a test fails, the install is broken.

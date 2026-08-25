@@ -20,7 +20,7 @@ quality-gated — please read this before opening a PR.
 2. Run the gate — it must stay green:
    ```bash
    cd skills/token-savings/scripts
-   python -m toks.cli selftest   # 201 tests, must pass
+   python -m toks.cli selftest   # 276 tests, must pass
    python -m toks.cli demo
    ```
 3. If you touch `skills/token-savings`, re-sync the generated Hermes bundle:

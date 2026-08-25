@@ -62,4 +62,4 @@ do not compress.
 ## If a toolkit is available
 If Python 3.9+ and the `toks` CLI are available (e.g. `bin/toks`), use:
 `toks dedup|astrip|compress-json|trim-bash|mdnorm|toolaudit|output-budget|cost-estimate|surface|check-syntax|audit-session|input-gate|input-meter|output-gate|autopilot|doctor`
-— pure stdlib, deterministic, tested (225 tests).
+— pure stdlib, deterministic, tested (276 tests).

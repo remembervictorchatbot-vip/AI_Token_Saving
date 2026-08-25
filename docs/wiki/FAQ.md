@@ -25,7 +25,7 @@ our env'. The measured dedup number (98.3% on a config re-read) comes from
 the deterministic bench. Claimed vs measured is always stated.
 
 **How do I know the install works?**
-`toks selftest` runs 225 tests and must stay GREEN (CI enforces this on
+`toks selftest` runs 276 tests and must stay GREEN (CI enforces this on
 Python 3.9-3.13). Hermes: `hermes skills list` after install.
 
 **What about the context filter?**
