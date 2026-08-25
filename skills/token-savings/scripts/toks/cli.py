@@ -193,7 +193,10 @@ def build_parser():
     ts.add_argument("--keep", default="")
     ts.add_argument("--max-upfront", type=int, default=5)
 
-    sub.add_parser("discover")
+    dv = sub.add_parser("discover")
+    dv.add_argument("--live", action="store_true",
+                    help="real MCP handshake (initialize + tools/list) per server")
+    dv.add_argument("--timeout", type=int, default=20)
 
     sub.add_parser("doctor")
 
@@ -468,7 +471,7 @@ def handle_tool_search(args):
 
 
 def handle_discover(args):
-    m = discover.discover()
+    m = discover.discover(live=args.live, timeout=args.timeout)
     print(discover.format_report(m))
 
 

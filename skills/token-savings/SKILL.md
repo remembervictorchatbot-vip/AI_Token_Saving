@@ -114,6 +114,14 @@ Decision rules from merged token skills — mechanisms live in the `toks` CLI:
   stale, compress bloat) — the decayed file loads every turn, so audit it
   regularly.
 
+- **Live surface discovery (v12)**: `toks discover` (estimates) or
+  `toks discover --live` — real MCP handshake per server (initialize →
+  tools/list over stdio JSON-RPC): exact tool names, descriptions and schema
+  sizes replace estimates; unreachable servers fall back to estimates and are
+  reported. Pipe into `toolaudit --manifest` / `tool-search --manifest`.
+  So yes: install skill → `toks setup` + `discover --live` + system-prompt
+  bundle = tools management wired with exact numbers, no manual manifests.
+
 ## Verify
 - `hermes skills list` shows token-savings.
-- `toks selftest` → ALL PASS (225 tests). If a test fails, the install is broken.
+- `toks selftest` → ALL PASS (254 tests). If a test fails, the install is broken.
