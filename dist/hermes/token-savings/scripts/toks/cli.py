@@ -27,6 +27,7 @@ import sys
 from toks import dedup, compress, measure, checkpoint, astrip, safemode, hygiene, protect, mdnorm, toolaudit, output, cost, surface, check, audit, gate, input_meter, autopilot, doctor  # noqa: E402
 from toks import pd, route, isolate  # noqa: E402  (v11)
 from toks import read_cache, memory_decay  # noqa: E402  (v11b)
+from toks import auto  # noqa: E402  (v11c smart auto-compress)
 from toks.demo import run_demo
 
 
@@ -176,6 +177,12 @@ def build_parser():
     md_.add_argument("--file", required=True)
     md_.add_argument("--max-chars", type=int, default=400)
     md_.add_argument("--stale-days", type=int, default=30)
+
+    ac = sub.add_parser("auto-compress")
+    ac.add_argument("--text", default="")
+    ac.add_argument("--file", default="")
+    ac.add_argument("--min-ratio", type=float, default=0.3)
+    ac.add_argument("--enforce-ratio", type=float, default=0.5)
 
     sub.add_parser("doctor")
 
@@ -417,6 +424,20 @@ def handle_memory_decay(args):
         text, max_chars=args.max_chars, stale_days=args.stale_days)))
 
 
+def handle_auto_compress(args):
+    text = args.text or _read_text(args.file) if (args.text or args.file) else ""
+    res = auto.decide(text, min_ratio=args.min_ratio,
+                      enforce_ratio=args.enforce_ratio)
+    if res["verdict"] == "APPLY":
+        print(res["out"])
+        print("[auto-compress {} saved={}%]".format(
+            res["verdict"], round(res["saved_ratio"] * 100)))
+    else:
+        print(auto.format_report(res))
+        if res["verdict"] == "SHADOW":
+            print(res["out"][:2000])
+
+
 def handle_selftest(args):
     import unittest
     scripts_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -466,6 +487,7 @@ HANDLERS = {
     "isolate": handle_isolate,
     "read-cache": handle_read_cache,
     "memory-decay": handle_memory_decay,
+    "auto-compress": handle_auto_compress,
     "selftest": handle_selftest,
     "demo": handle_demo,
 }
