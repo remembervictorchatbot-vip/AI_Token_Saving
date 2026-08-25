@@ -28,6 +28,7 @@ from toks import dedup, compress, measure, checkpoint, astrip, safemode, hygiene
 from toks import pd, route, isolate  # noqa: E402  (v11)
 from toks import read_cache, memory_decay  # noqa: E402  (v11b)
 from toks import auto  # noqa: E402  (v11c smart auto-compress)
+from toks import toolsearch  # noqa: E402  (v11d tool-search surface)
 from toks.demo import run_demo
 
 
@@ -183,6 +184,13 @@ def build_parser():
     ac.add_argument("--file", default="")
     ac.add_argument("--min-ratio", type=float, default=0.3)
     ac.add_argument("--enforce-ratio", type=float, default=0.5)
+
+    ts = sub.add_parser("tool-search")
+    ts.add_argument("--manifest", default="")
+    ts.add_argument("--text", default="")
+    ts.add_argument("--query", default="")
+    ts.add_argument("--keep", default="")
+    ts.add_argument("--max-upfront", type=int, default=5)
 
     sub.add_parser("doctor")
 
@@ -438,6 +446,24 @@ def handle_auto_compress(args):
             print(res["out"][:2000])
 
 
+def handle_tool_search(args):
+    raw = args.text
+    if not raw and args.manifest:
+        raw = _read_text(args.manifest)
+    if not raw:
+        raw = toolaudit.sample_manifest()
+    if args.query:
+        for name in toolsearch.search_tools(raw, args.query):
+            print(name)
+        return
+    plan = toolsearch.plan_defer(
+        raw, keep=[k for k in args.keep.split("|") if k],
+        max_upfront=args.max_upfront)
+    print(toolsearch.estimate_report(plan))
+    print("--- search index (load this instead of full schemas) ---")
+    print(toolsearch.build_index(raw))
+
+
 def handle_selftest(args):
     import unittest
     scripts_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -488,6 +514,7 @@ HANDLERS = {
     "read-cache": handle_read_cache,
     "memory-decay": handle_memory_decay,
     "auto-compress": handle_auto_compress,
+    "tool-search": handle_tool_search,
     "selftest": handle_selftest,
     "demo": handle_demo,
 }

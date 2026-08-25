@@ -37,7 +37,9 @@ def parse_manifest(text_or_obj):
         name = c.get("name") or c.get("id") or "unknown"
         if "tools" in c and isinstance(c["tools"], list):
             tools = [
-                {"name": t.get("name", "tool"), "schema_chars": int(t.get("schema_chars", 1500))}
+                {"name": t.get("name", "tool"),
+                 "schema_chars": int(t.get("schema_chars", 1500)),
+                 "desc": t.get("desc") or t.get("description") or ""}
                 for t in c["tools"]
             ]
         else:
