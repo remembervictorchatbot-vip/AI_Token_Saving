@@ -21,7 +21,7 @@ toks quality-gate --before "..." --after "..."
 toks checkpoint --emit --active-task "..." --decisions "d1|d2" --open-questions "q1|q2" --lessons "l1"
 toks mdnorm --text "$HTML" --source html   # HTML -> clean Markdown (USE-8)
 toks mdnorm --text "$MD" --source md       # normalize messy Markdown
-toks toolaudit --manifest conns.json --keep "feishu|notion"   # audit tool surface (USE-7)
+toks toolaudit --manifest conns.json --keep "gmail|notion"   # audit tool surface (USE-7)
 toks output-budget --task analysis         # O-2 ceiling in lines
 toks output-json --text '{"a":1'           # O-1 gate: VALID / INVALID
 toks output-table --header "id|name" --rows "1|Alice;2|Bob"   # O-1 header-once table
