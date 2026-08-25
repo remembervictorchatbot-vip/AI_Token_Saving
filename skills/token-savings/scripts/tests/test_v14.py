@@ -1,5 +1,4 @@
 """Tests for v14 CCR reversible compression cache (ccr.py)."""
-import os
 import tempfile
 import unittest
 
