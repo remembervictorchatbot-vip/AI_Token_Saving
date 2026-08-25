@@ -57,8 +57,8 @@ class CCR:
         p = self._path(h)
         if not os.path.exists(p):
             return {"hit": False, "why": "not in cache"}
-        age_days = (time.time() - os.stat(p).st_mtime) / 86400
-        if age_days > self.ttl_days:
+        age_seconds = time.time() - os.stat(p).st_mtime
+        if age_seconds >= self.ttl_days * 86400:
             try:
                 os.remove(p)
             except OSError:
@@ -70,7 +70,7 @@ class CCR:
             meta, _, text = text.partition("\n")
             meta = meta[len("[meta] "):]
         return {"hit": True, "text": text, "meta": meta,
-                "chars": len(text), "age_days": round(age_days, 1)}
+                "chars": len(text), "age_days": round(age_seconds / 86400, 1)}
 
     def stats(self) -> dict:
         entries = []
